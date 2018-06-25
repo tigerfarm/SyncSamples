@@ -20,23 +20,24 @@ class HTTPRequester {
 
 }
 
+$counterName = "countera";  // The Sync Map Key value used as the counter name.
+
 // Documentation https://www.twilio.com/docs/sync/api/maps
 $accountSid = getenv("ACCOUNT_SID");
 $authToken = getenv('AUTH_TOKEN');
 $syncServieSid = getenv('SYNC_SERVICE_SID');
 $syncMapName = getenv('SYNC_MAP_NAME');
-// curl -X GET https://sync.twilio.com/v1/Services/$SYNC_SERVICE_SID/Maps/$SYNC_MAP_NAME/Items -u $ACCOUNT_SID:$AUTH_TOKEN
-$url = "https://sync.twilio.com/v1/Services/{$syncServieSid}/Maps/{$syncMapName}/Items";
+// curl -X GET https://sync.twilio.com/v1/Services/$SYNC_SERVICE_SID/Maps/$SYNC_MAP_NAME/Items/countera -u $ACCOUNT_SID:$AUTH_TOKEN
+$url = "https://sync.twilio.com/v1/Services/{$syncServieSid}/Maps/{$syncMapName}/Items/{$counterName}";
 // echo "\xA++ The request URL: ", $url;
 $http = new HTTPRequester();
 $response = $http->HTTPGet($accountSid, $authToken, $url, "");
 // echo "\xA+ Response: {$response}";
-echo "\xA+ List:";
+echo "+ List value for the counter: " . $counterName;
 $jsonResponse = json_decode($response);
 // print_r($jsonResponse);
-// {"items": [ {"map_sid": "MP...", ... "data": {"counter": 1}, "revision": "0"}], ...
-foreach($jsonResponse->items as $item){
-    echo "\xA++ Key: " . $item->key . ", Data: " . json_encode( $item->data ) . " counter = " . $item->data->counter;
-}
-echo "\xA+++ Exit.\xA";
+// { ... "key": "countera", ..., "data": {"counter": 1}, ...
+echo "\xA++ Key: " . $jsonResponse->key . ", Data: " . json_encode( $jsonResponse->data );
+echo "\xA++ Counter value = " . $jsonResponse->data->counter . "\xA";
+
 ?>

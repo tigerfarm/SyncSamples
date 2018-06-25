@@ -18,19 +18,19 @@ class HTTPRequester {
 
 }
 // -----------------------------------------------------------------------------
-$counterName = "countera";
-$counterValue = 7;
-echo "+ Create counter: " . $counterName . ", to: " . $counterValue;
+$counterName = "countera";  // The Sync Map Key value used as the counter name.
+$counterValue = 7;          // One of the Sync Map data values.
+echo "+ Create counter: " . $counterName . ", as: " . $counterValue;
+$jsonData = '{"counter": ' . $counterValue . '}';
 // -----------------------------------------------------------------------------
 $accountSid = getenv("ACCOUNT_SID");
 $authToken = getenv('AUTH_TOKEN');
 $syncServieSid = getenv('SYNC_SERVICE_SID');
 $syncMapName = getenv('SYNC_MAP_NAME');
-$jsonData = '{"counter": ' . $counterValue . '}';
 $url = "https://sync.twilio.com/v1/Services/{$syncServieSid}/Maps/{$syncMapName}/Items";
 $data = array(
     'Ttl' => 0, // 0 - never expires
-    'Key' => "{$counterValue}",
+    'Key' => "{$counterName}",
     'Data' => $jsonData
 );
 // echo "\xA++ The request URL: ", $url;
