@@ -24,11 +24,10 @@ $authToken = getenv('AUTH_TOKEN');
 $syncServieSid = getenv('SYNC_SERVICE_SID');
 $syncMapName = getenv('SYNC_MAP_NAME');
 
-$url = "https://sync.twilio.com/v1/Services/{$syncServieSid}/Maps/{$syncMapName}/Items";
+$keyValue = "countera";
+$url = "https://sync.twilio.com/v1/Services/{$syncServieSid}/Maps/{$syncMapName}/Items/{$keyValue}";
 $data = array(
-    'Ttl' => 0, // 0 - never expires
-    'Key' => "counterb",
-    'Data' => '{"counter": 2}'
+    'Data' => '{"counter": 3}'
 );
 
 echo "\xA++ The request URL: ", $url;
