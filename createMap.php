@@ -26,13 +26,11 @@ $accountSid = getenv("ACCOUNT_SID");
 $authToken = getenv('AUTH_TOKEN');
 $syncServieSid = getenv('SYNC_SERVICE_SID');
 $syncMapName = getenv('SYNC_MAP_NAME');
-
 $url = "https://sync.twilio.com/v1/Services/{$syncServieSid}/Maps";
 $data = array(
     'Ttl' => 0, // 0 - never expires
     'UniqueName' => $syncMapName
 );
-
 echo "\xA++ The request URL: ", $url;
 $http = new HTTPRequester();
 $response = $http->HTTPPost($accountSid, $authToken, $url, $data);
