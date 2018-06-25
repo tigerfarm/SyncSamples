@@ -17,22 +17,30 @@ class HTTPRequester {
     }
 
 }
-
-echo '+++ Start.';
+// -----------------------------------------------------------------------------
+$counterName = "countera";
+$counterValue = 7;
+echo "+ Update counter: " . $counterName . ", to: " . $counterValue;
+// -----------------------------------------------------------------------------
 $accountSid = getenv("ACCOUNT_SID");
 $authToken = getenv('AUTH_TOKEN');
 $syncServieSid = getenv('SYNC_SERVICE_SID');
 $syncMapName = getenv('SYNC_MAP_NAME');
-
-$keyValue = "countera";
-$url = "https://sync.twilio.com/v1/Services/{$syncServieSid}/Maps/{$syncMapName}/Items/{$keyValue}";
+$jsonData = '{"counter": ' . $counterValue . '}';
+$url = "https://sync.twilio.com/v1/Services/{$syncServieSid}/Maps/{$syncMapName}/Items/{$counterName}";
+// echo "\xA++ The request URL: ", $url;
 $data = array(
-    'Data' => '{"counter": 3}'
+    'Data' => $jsonData
 );
-
-echo "\xA++ The request URL: ", $url;
 $http = new HTTPRequester();
 $response = $http->HTTPPost($accountSid, $authToken, $url, $data);
-echo "\xA+ Response: {$response}";
-echo '\xA+++ Exit.\xA';
+// echo "\xA+ Response: {$response}";
+$start = stripos($response, "{");
+$jsonLength = strlen($response) - $start;
+$jsonOnly = substr( $response, $start, $jsonLength );
+// echo "\xA+ JSON response:{$jsonOnly}:";
+$jsonResponse = json_decode($jsonOnly);
+// -----------------------------------------------------------------------------
+echo "\xA++ Date created: " . $jsonResponse->date_created;
+echo "\xA++ Date updated: " . $jsonResponse->date_updated . "\xA";
 ?>
