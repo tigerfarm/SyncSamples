@@ -30,7 +30,8 @@ $syncMapName = getenv('SYNC_MAP_NAME');
 $url = "https://sync.twilio.com/v1/Services/{$syncServieSid}/Maps/{$syncMapName}/Items/{$counterName}";
 // echo "\xA++ The request URL: ", $url;
 $data = array(
-    'Key' => "{$counterName}"
+    // dumby value because an array is required to make POST values, even though no values are required.
+    'dumby' => "nothing"
 );
 $http = new HTTPRequester();
 $response = $http->HTTPDelete($accountSid, $authToken, $url, $data);

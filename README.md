@@ -5,6 +5,8 @@ Requirements:
 - Twilio account. A free Trial account will work.
 - PHP installed to run programs locally on your computer.
 
+Note, can create Map with an empty name, "". However, cannot delete it.
+
 ## Files
 
 The Client files:
@@ -15,9 +17,9 @@ The Client files:
 - [listMapItem.php](listMapItem.php) : List a specific Sync Map Item.
 - [updateMapItem.php](listMapItem.php) : Update a specific Sync Map Item.
 - [delMapItem.php](delMapItem.php) : Delete a specific Sync Map Item.
+- [delMap.php](delMap.php) : Delete a specific Sync Map, which deletes all the related Items.
 
 To do:
-- delMap.php : Delete a specific Sync Map, which deletes all the related Items.
 - Update the programs echo-messages.
 - Standardize parameters, example: createMapItem.php.
 - Add some error handling, example: duplicate map, in createMap.php.

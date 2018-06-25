@@ -19,7 +19,7 @@ class HTTPRequester {
 }
 // -----------------------------------------------------------------------------
 $counterName = "counterd";  // The Sync Map Key value used as the counter name.
-$counterValue = 12;          // One of the Sync Map data values.
+$counterValue = 1;          // One of the Sync Map data values.
 echo "+ Create counter: " . $counterName . ", as: " . $counterValue;
 $jsonData = '{"counter": ' . $counterValue . '}';
 // -----------------------------------------------------------------------------
@@ -34,18 +34,25 @@ $data = array(
     'Data' => $jsonData
 );
 // echo "\xA++ The request URL: ", $url;
+// -----------------------------------------------------------------------------
 $http = new HTTPRequester();
 $response = $http->HTTPPost($accountSid, $authToken, $url, $data);
-// substr ( string $string , int $start [, int $length ] )
-// stripos($response, "$substring"{")
-// strlen()
+// echo "\xA+ Response :{$response}:";
+$end = stripos($response, "Access");
+$httpResponse = substr($response, 0, $end - 1);
+// echo "\xA+ Index of 204:" . stripos($httpResponse, "204");
+if (stripos($httpResponse, "201") != null) {
+    // HTTP/1.1 201 CREATED
+    echo "\xA++ Created Sync Map Item: " . $counterName . ".\xA";
+    return;
+}
+// -----------------------------------------------------------------------------
+echo "\xA++ HTTP Response code: {$httpResponse}";
 $start = stripos($response, "{");
 $jsonLength = strlen($response) - $start;
-// echo "\xA+ JSON start = {$start} JSON length = {$jsonLength}";
 $jsonOnly = substr( $response, $start, $jsonLength );
-// echo "\xA+ Response :{$response}:";
-echo "\xA+ JSON :{$jsonOnly}:";
+// echo "\xA+ JSON response:{$jsonOnly}:";
 $jsonResponse = json_decode($jsonOnly);
+echo "\xA++ Error message: " . $jsonResponse->message . "\xA";
 // -----------------------------------------------------------------------------
-echo "\xA++ Created: Key = " . $jsonResponse->key . "\xA";
 ?>

@@ -19,7 +19,7 @@ class HTTPRequester {
 }
 // -----------------------------------------------------------------------------
 $counterName = "countera";
-$counterValue = 7;
+$counterValue = 3;
 echo "+ Update counter: " . $counterName . ", to: " . $counterValue;
 // -----------------------------------------------------------------------------
 $accountSid = getenv("ACCOUNT_SID");
@@ -35,12 +35,24 @@ $data = array(
 $http = new HTTPRequester();
 $response = $http->HTTPPost($accountSid, $authToken, $url, $data);
 // echo "\xA+ Response: {$response}";
+// -----------------------------------------------------------------------------
 $start = stripos($response, "{");
 $jsonLength = strlen($response) - $start;
 $jsonOnly = substr( $response, $start, $jsonLength );
 // echo "\xA+ JSON response:{$jsonOnly}:";
 $jsonResponse = json_decode($jsonOnly);
+//
+$end = stripos($response, "Access");
+$httpResponse = substr($response, 0, $end - 1);
+if (stripos($httpResponse, "200") != null) {
+    // HTTP/1.1 200 OK
+    echo "\xA++ Updated Sync Map Item.";
+    echo "\xA++ Date created: " . $jsonResponse->date_created;
+    echo "\xA++ Date updated: " . $jsonResponse->date_updated . "\xA";
+    return;
+}
+echo "\xA++ HTTP Response code: {$httpResponse}";
+echo "\xA++ Error message: " . $jsonResponse->message . "\xA";
+
 // -----------------------------------------------------------------------------
-echo "\xA++ Date created: " . $jsonResponse->date_created;
-echo "\xA++ Date updated: " . $jsonResponse->date_updated . "\xA";
 ?>
