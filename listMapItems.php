@@ -19,20 +19,24 @@ class HTTPRequester {
     }
 
 }
-?>
 
-<?php
-
-echo '+++ Start.';
+// echo '+++ Start.';
 $accountSid = getenv("ACCOUNT_SID");
 $authToken = getenv('AUTH_TOKEN');
 $syncServieSid = getenv('SYNC_SERVICE_SID');
 $syncMapName = getenv('SYNC_MAP_NAME');
 // curl -X GET https://sync.twilio.com/v1/Services/$SYNC_SERVICE_SID/Maps/$SYNC_MAP_NAME/Items -u $ACCOUNT_SID:$AUTH_TOKEN
 $url = "https://sync.twilio.com/v1/Services/{$syncServieSid}/Maps/{$syncMapName}/Items";
-echo "\xA++ The request URL: ", $url;
+// echo "\xA++ The request URL: ", $url;
 $http = new HTTPRequester();
 $response = $http->HTTPGet($accountSid, $authToken, $url, "");
-echo "\xA+ Response: {$response}";
-echo '\xA+++ Exit.\xA';
+// echo "\xA+ Response: {$response}";
+echo "\xA+ List:";
+$jsonResponse = json_decode($response);
+// print_r($jsonResponse);
+// {"items": [ {"map_sid": "MP...", ... "data": {"counter": 1}, "revision": "0"}], ...
+foreach($jsonResponse->items as $item){
+    echo "\xA++ Key: " . $item->key . ", Data: " . json_encode( $item->data ) . " counter = " . $item->data->counter;
+}
+echo "\xA+++ Exit.\xA";
 ?>

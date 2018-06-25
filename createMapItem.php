@@ -30,8 +30,8 @@ $syncMapName = getenv('SYNC_MAP_NAME');
 $url = "https://sync.twilio.com/v1/Services/{$syncServieSid}/Maps/{$syncMapName}/Items";
 $data = array(
     'Ttl' => 0, // 0 - never expires
-    'Key' => "countera",
-    'Data' => '{"counter": 1}'
+    'Key' => "counterb",
+    'Data' => '{"counter": 2}'
 );
 
 echo "\xA++ The request URL: ", $url;
