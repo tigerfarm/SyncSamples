@@ -14,10 +14,10 @@ The Client files:
 - [listMapItems.php](listMapItems.php) : List Sync Map Items.
 - [listMapItem.php](listMapItem.php) : List a specific Sync Map Item.
 - [updateMapItem.php](listMapItem.php) : Update a specific Sync Map Item.
+- [delMapItem.php](delMapItem.php) : Delete a specific Sync Map Item.
 
 To do:
 - delMap.php : Delete a specific Sync Map, which deletes all the related Items.
-- delMapItem.php : Delete a specific Sync Map Item.
 - Update the programs echo-messages.
 - Standardize parameters, example: createMapItem.php.
 - Add some error handling, example: duplicate map, in createMap.php.

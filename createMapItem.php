@@ -18,8 +18,8 @@ class HTTPRequester {
 
 }
 // -----------------------------------------------------------------------------
-$counterName = "countera";  // The Sync Map Key value used as the counter name.
-$counterValue = 7;          // One of the Sync Map data values.
+$counterName = "counterd";  // The Sync Map Key value used as the counter name.
+$counterValue = 12;          // One of the Sync Map data values.
 echo "+ Create counter: " . $counterName . ", as: " . $counterValue;
 $jsonData = '{"counter": ' . $counterValue . '}';
 // -----------------------------------------------------------------------------
