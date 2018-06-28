@@ -21,7 +21,6 @@ class HTTPRequester {
 }
 
 $counterName = "countera";  // The Sync Map Key value used as the counter name.
-
 // Documentation https://www.twilio.com/docs/sync/api/maps
 $accountSid = getenv("ACCOUNT_SID");
 $authToken = getenv('AUTH_TOKEN');
@@ -37,7 +36,6 @@ echo "+ List value for the counter: " . $counterName;
 $jsonResponse = json_decode($response);
 // print_r($jsonResponse);
 // { ... "key": "countera", ..., "data": {"counter": 1}, ...
-echo "\xA++ Key: " . $jsonResponse->key . ", Data: " . json_encode( $jsonResponse->data );
+echo "\xA++ Key: " . $jsonResponse->key . ", Data: " . json_encode($jsonResponse->data);
 echo "\xA++ Counter value = " . $jsonResponse->data->counter . "\xA";
-
 ?>

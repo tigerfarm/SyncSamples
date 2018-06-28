@@ -18,8 +18,8 @@ class HTTPRequester {
 
 }
 // -----------------------------------------------------------------------------
-$counterName = "counterd";  // The Sync Map Key value used as the counter name.
-$counterValue = 1;          // One of the Sync Map data values.
+$counterName = "countera";  // The Sync Map Key value used as the counter name.
+$counterValue = 3;          // One of the Sync Map data values.
 echo "+ Create counter: " . $counterName . ", as: " . $counterValue;
 $jsonData = '{"counter": ' . $counterValue . '}';
 // -----------------------------------------------------------------------------
@@ -47,6 +47,7 @@ if (stripos($httpResponse, "201") != null) {
     return;
 }
 // -----------------------------------------------------------------------------
+// Error handling
 echo "\xA++ HTTP Response code: {$httpResponse}";
 $start = stripos($response, "{");
 $jsonLength = strlen($response) - $start;

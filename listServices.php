@@ -6,8 +6,9 @@ class HTTPRequester {
         // Sample call: $response = HTTPRequester::HTTPGet("http://localhost/service/foobar.php", array("getParam" => "foobar"));
         $query = "";
         if ($params !== "") {
-            $query = '?' . http_build_query($params);
+            $url += '?' . http_build_query($params);
         }
+        // echo "\xA++ The request GET URL: ", $url;
         $ch = curl_init($url . $query);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HEADER, false);
@@ -19,30 +20,22 @@ class HTTPRequester {
 
 }
 
-// echo '+++ Start.';
+// Documentation https://www.twilio.com/docs/sync/api/maps
 $accountSid = getenv("ACCOUNT_SID");
 $authToken = getenv('AUTH_TOKEN');
 $syncServieSid = getenv('SYNC_SERVICE_SID');
-// curl -X GET https://sync.twilio.com/v1/Services/$SYNC_SERVICE_SID/Maps -u $ACCOUNT_SID:$AUTH_TOKEN
-$url = "https://sync.twilio.com/v1/Services/{$syncServieSid}/Maps";
+// curl -X GET https://sync.twilio.com/v1/Services -u $ACCOUNT_SID:$AUTH_TOKEN
+$url = "https://sync.twilio.com/v1/Services";
 // echo "\xA++ The request URL: ", $url;
 $http = new HTTPRequester();
 $response = $http->HTTPGet($accountSid, $authToken, $url, "");
-// echo "\xA+ Response: {$response}\xA";
-
-// $json = json_decode('{"entries":[{"id": "29","name":"John", "age":"36"}]}');
-// print_r($json);
-// foreach($json->entries as $record){
-//     echo "\xA++ " . $record->id;
-// }
-
-echo "+ Map list:";
+// echo "\xA+ Response: {$response}";
+echo "+ List:";
 $jsonResponse = json_decode($response);
-// echo "\xA+ $jsonResponse: {$response}";
 // print_r($jsonResponse);
-// {"maps": [{"unique_name": "counters",
-foreach($jsonResponse->maps as $map){
-    echo "\xA++ " . $map->unique_name;
+// {"items": [ {"map_sid": "MP...", ... "data": {"counter": 1}, "revision": "0"}], ...
+foreach ($jsonResponse->services as $item) {
+    echo "\xA++ sid: " . $item->sid . ", friendly_name = " . $item->friendly_name;
 }
-echo "\xA+ End of list.\xA";
+echo "\xA+++ Exit.\xA";
 ?>

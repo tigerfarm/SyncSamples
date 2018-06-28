@@ -35,8 +35,8 @@ echo "+ List:";
 $jsonResponse = json_decode($response);
 // print_r($jsonResponse);
 // {"items": [ {"map_sid": "MP...", ... "data": {"counter": 1}, "revision": "0"}], ...
-foreach($jsonResponse->items as $item){
-    echo "\xA++ Key: " . $item->key . ", Data: " . json_encode( $item->data ) . " counter = " . $item->data->counter;
+foreach ($jsonResponse->items as $item) {
+    echo "\xA++ Key: " . $item->key . ", Data: " . json_encode($item->data) . " counter = " . $item->data->counter;
 }
 echo "\xA+++ Exit.\xA";
 ?>

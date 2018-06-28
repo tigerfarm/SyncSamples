@@ -4,6 +4,7 @@ class HTTPRequester {
 
     public static function HTTPPost($accountSid, $authToken, $url, array $params) {
         $query = http_build_query($params);
+        echo "+ query " . $query;
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HEADER, 1);
@@ -26,7 +27,7 @@ $syncMapName = getenv('SYNC_MAP_NAME');
 echo "+ Create Sync Map: " . $syncMapName;
 $url = "https://sync.twilio.com/v1/Services/{$syncServieSid}/Maps";
 $data = array(
-    'Ttl' => 0, // 0 - never expires
+    'Ttl' => 0,     // 0 - never expires
     'UniqueName' => $syncMapName
 );
 // echo "\xA++ The request URL: ", $url;
@@ -43,6 +44,7 @@ if (stripos($httpResponse, "201") != null) {
     return;
 }
 // -----------------------------------------------------------------------------
+// Error handling
 echo "\xA++ HTTP Response code: {$httpResponse}";
 $start = stripos($response, "{");
 $jsonLength = strlen($response) - $start;

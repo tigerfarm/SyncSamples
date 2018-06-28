@@ -54,7 +54,6 @@ $jsonLength = strlen($response) - $start;
 $jsonOnly = substr( $response, $start, $jsonLength );
 // echo "\xA+ JSON response:{$jsonOnly}:";
 $jsonResponse = json_decode($jsonOnly);
-// -----------------------------------------------------------------------------
 echo "\xA++ Error message: " . $jsonResponse->message . "\xA";
 
 // -----------------------------------------------------------------------------
