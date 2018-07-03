@@ -5,13 +5,13 @@ const client = require('twilio')(accountSid, authToken);
 const syncServiceSid = process.env.SYNC_SERVICE_SID;
 const syncMapName = process.env.SYNC_MAP_NAME;
 const syncMapItem = 'counterg';
-//
-console.log("++ Delete Sync Service:Map:Item: " + syncServiceSid + ":" + syncMapName + ":" + syncMapItem);
-//
+const syncMapItemCounterValue = 6;
+console.log("++ Update Sync Service:Map:Item: " + syncServiceSid + ":" + syncMapName + ":" + syncMapItem);
+let theData = {'counter': syncMapItemCounterValue};
 client.sync.services(syncServiceSid).syncMaps(syncMapName).syncMapItems(syncMapItem)
-    .remove()
-    .then((sync_map) => {
-        console.log("+ Deleted.");
+    .update({key: syncMapItem, data: theData})
+    .then((sync_map_item) => {
+        console.log("+ Updated counter: " + syncMapItem + " = " + syncMapItemCounterValue);
     }).catch(function (error) {
         console.log("- " + error);
         // callback("- " + error);

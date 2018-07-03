@@ -6,13 +6,13 @@ const syncServiceSid = process.env.SYNC_SERVICE_SID;
 const syncMapName = process.env.SYNC_MAP_NAME;
 const syncMapItem = 'counterg';
 //
-console.log("++ Delete Sync Service:Map:Item: " + syncServiceSid + ":" + syncMapName + ":" + syncMapItem);
+console.log("++ Retrieve Sync Service:Map:Item: " + syncServiceSid + ":" + syncMapName + ":" + syncMapItem);
 //
 client.sync.services(syncServiceSid).syncMaps(syncMapName).syncMapItems(syncMapItem)
-    .remove()
-    .then((sync_map) => {
-        console.log("+ Deleted.");
+    .fetch()
+    .then((sync_map_item) => {
+        console.log("+ Counter: " + sync_map_item.key + " = " + sync_map_item.data.counter);
     }).catch(function (error) {
         console.log("- " + error);
         // callback("- " + error);
-    });
+});
