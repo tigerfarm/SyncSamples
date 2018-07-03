@@ -10,5 +10,6 @@ console.log("++ Retrieve Sync Service:Map:Item: " + syncServiceSid + ":" + syncM
 //
 client.sync.services(syncServiceSid).syncMaps(syncMapName).syncMapItems
     .each(
-        syncMapItems => console.log("+ Counter: " + syncMapItems.key + " = " + syncMapItems.data.counter)
-    );
+        syncMapItems => {
+        console.log("+ Counter: " + syncMapItems.key + " = " + syncMapItems.data.counter);
+    });
