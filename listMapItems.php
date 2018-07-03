@@ -31,7 +31,7 @@ $url = "https://sync.twilio.com/v1/Services/{$syncServieSid}/Maps/{$syncMapName}
 $http = new HTTPRequester();
 $response = $http->HTTPGet($accountSid, $authToken, $url, "");
 // echo "\xA+ Response: {$response}";
-echo "+ List:";
+echo "+ List items for map: " . $syncMapName;
 $jsonResponse = json_decode($response);
 // print_r($jsonResponse);
 // {"items": [ {"map_sid": "MP...", ... "data": {"counter": 1}, "revision": "0"}], ...

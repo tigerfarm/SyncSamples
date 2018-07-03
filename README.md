@@ -58,9 +58,11 @@ Programs to manage Sync service Map items:
 API documentation link: [https://www.twilio.com/docs/sync/api/maps](https://www.twilio.com/docs/sync/api/maps)
 
 Sync Maps JavaScript SDK documentation: https://www.twilio.com/docs/sync/maps
+Sync tokens: https://www.twilio.com/docs/sync/identity-and-access-tokens
 
 To do:
 - Create a service.
+- List error checking.
 - Consider a library for: GET and POST, and standard error handling messages (example: createMap.php).
 
 ## Implementation

@@ -18,7 +18,7 @@ class HTTPRequester {
 
 }
 // -----------------------------------------------------------------------------
-$counterName = "countera";  // The Sync Map Key value used as the counter name.
+$counterName = "counterf";  // The Sync Map Key value used as the counter name.
 $counterValue = 3;          // One of the Sync Map data values.
 echo "+ Create counter: " . $counterName . ", as: " . $counterValue;
 $jsonData = '{"counter": ' . $counterValue . '}';
@@ -37,7 +37,7 @@ $data = array(
 // -----------------------------------------------------------------------------
 $http = new HTTPRequester();
 $response = $http->HTTPPost($accountSid, $authToken, $url, $data);
-// echo "\xA+ Response :{$response}:";
+echo "\xA+ Response :{$response}:";
 $end = stripos($response, "Access");
 $httpResponse = substr($response, 0, $end - 1);
 // echo "\xA+ Index of 204:" . stripos($httpResponse, "204");

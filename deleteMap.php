@@ -23,7 +23,8 @@ class HTTPRequester {
 $accountSid = getenv("ACCOUNT_SID");
 $authToken = getenv('AUTH_TOKEN');
 $syncServieSid = getenv('SYNC_SERVICE_SID');
-$syncMapName = getenv('SYNC_MAP_NAME');
+// $syncMapName = getenv('SYNC_MAP_NAME');
+$syncMapName = 'mymap';
 echo "+ Delete Sync Map: " . $syncMapName;
 $url = "https://sync.twilio.com/v1/Services/{$syncServieSid}/Maps/{$syncMapName}";
 // echo "\xA++ The request URL: ", $url;

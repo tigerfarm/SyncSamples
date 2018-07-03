@@ -29,14 +29,8 @@ $url = "https://sync.twilio.com/v1/Services/{$syncServieSid}/Maps";
 $http = new HTTPRequester();
 $response = $http->HTTPGet($accountSid, $authToken, $url, "");
 // echo "\xA+ Response: {$response}\xA";
-
-// $json = json_decode('{"entries":[{"id": "29","name":"John", "age":"36"}]}');
-// print_r($json);
-// foreach($json->entries as $record){
-//     echo "\xA++ " . $record->id;
-// }
-
-echo "+ Map list:";
+// {"maps": []
+echo "+ Map list for service SID: " . $syncServieSid;
 $jsonResponse = json_decode($response);
 // echo "\xA+ $jsonResponse: {$response}";
 // print_r($jsonResponse);
