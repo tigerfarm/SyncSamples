@@ -13,3 +13,4 @@ client.sync.services(syncServiceSid).syncMaps(syncMapName).syncMapItems
         syncMapItems => {
         console.log("+ Counter: " + syncMapItems.key + " = " + syncMapItems.data.counter);
     });
+
