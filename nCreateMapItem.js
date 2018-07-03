@@ -4,8 +4,8 @@ const authToken = process.env.AUTH_TOKEN;
 const client = require('twilio')(accountSid, authToken);
 const syncServiceSid = process.env.SYNC_SERVICE_SID;
 const syncMapName = process.env.SYNC_MAP_NAME;
-const syncMapItem = 'counterg';
-const syncMapItemCounterValue = 3;
+const syncMapItem = 'counterb';
+const syncMapItemCounterValue = 33;
 console.log("++ Create Sync Service:Map:Item: " + syncServiceSid + ":" + syncMapName + ":" + syncMapItem);
 let theData = {'counter': syncMapItemCounterValue};
 client.sync.services(syncServiceSid).syncMaps(syncMapName).syncMapItems
