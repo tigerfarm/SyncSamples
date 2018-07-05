@@ -13,6 +13,7 @@ const broadcastNotAuthorizedMessage = '- You are not part of the group.';
 const startMessage = "+ Start: You are subscribed to this phone number's messages.";
 const stopMessage = "+ Stop: You are unsubscribed from this phone number's messages.";
 const authorizeMessage = '+ authorizeMessage';
+const authorizeFailMessage = '- Failed to authorize.';
 const UnsubscribeMessage = '+ UnsubscribeMessage';
 const whoMessage = "Members: ";
 // -----------------------------------------------------------------------------
@@ -83,6 +84,7 @@ class StopCommand extends Command {
 class SubscribeCommand extends Command {
     // Add the person into the DB.
     // Broadcast that they have joined.
+    // Need error checking that this.word2 is valid.
     run(callback) {
         // Create a new SMS Notify binding for this user's phone number
         let theData = {'name': this.word2, 'authorizedBy': 'new'};
@@ -99,6 +101,7 @@ class SubscribeCommand extends Command {
 
 class AuthorizeCommand extends Command {
     // Update the person into the DB to be authorized.
+    // Need error checking that this.word2 is valid. And error handling
     run(callback) {
 client.sync.services(syncServiceSid).syncMaps(this.toNumber).syncMapItems(this.word2)
     .fetch()
@@ -110,12 +113,12 @@ client.sync.services(syncServiceSid).syncMaps(this.toNumber).syncMapItems(this.w
             .then((sync_map_item) => {
                 console.log("+ Updated authorizedBy, to:" + this.fromNumber);
             }).catch(function (error) {
-            console.log("- " + error);
-            // callback("- " + error);
+            // console.log("- AuthorizeCommand, update: " + error);
+            callback("- " + error);
         });
     }).catch(function (error) {
-    console.log("- " + error);
-    // callback("- " + error);
+    console.log("- AuthorizeCommand, retrieve:  " + error);
+    callback(error, authorizeFailMessage);
 });
     }
 }
@@ -163,7 +166,7 @@ class BroadcastCommand extends Command {
 //------------------
 // For testing:
 // https://obedient-machine-3163.twil.io/groupsms?To=+16503791233&From=6508661007&body=okay
-var event = {Body: "authorize +12223331234", From: "+16508661234", To: "+16508667890"};
+var event = {Body: "authorize +12223331234x", From: "+16508661234", To: "+16508661233"}; // broadcast: 6508661007
 function callback(aValue, theText) {
     console.log("++ function callback: " + theText);
 }
@@ -187,16 +190,16 @@ function callback(aValue, theText) {
             cmdInstance = new HelpCommand(event);
             break;
         case 'subscribe':
-            cmdInstance = new SubscribeCommand(event);
+            cmdInstance = new SubscribeCommand(event);      // create
             break;
         case 'authorize':
-            cmdInstance = new AuthorizeCommand(event);
+            cmdInstance = new AuthorizeCommand(event);      // retrieve and update
             break;
         case 'unsubscribe':
-            cmdInstance = new UnsubscribeCommand(event);
+            cmdInstance = new UnsubscribeCommand(event);    // delete
             break;
         case 'who':
-            cmdInstance = new WhoCommand(event);
+            cmdInstance = new WhoCommand(event);            // retrieve a list
             break;
         case 'start':
             cmdInstance = new StartCommand(event);
@@ -205,7 +208,7 @@ function callback(aValue, theText) {
             cmdInstance = new StopCommand(event);
             break;
         default:
-            cmdInstance = new BroadcastCommand(event);
+            cmdInstance = new BroadcastCommand(event);      // retrieve a list
     }
     cmdInstance.run((err, message) => {
         let twiml = new twilio.twiml.MessagingResponse();
@@ -214,6 +217,8 @@ function callback(aValue, theText) {
             console.log("- cmdInstance.run error: " + err.status + ":" + err.message);
             if (err.message.indexOf("already exists")>0) {
                 message = 'You are already subscribed.';            
+            } else if (err.status === 404) {
+                message = 'There was a problem with your request, value not found: ' + cmdInstance.word2;
             } else {
                 message = 'There was a problem with your request.';
             }
