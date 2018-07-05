@@ -21,7 +21,7 @@ const broadcastNotAuthorizedMessage = '- You are not part of the group.';
 const startMessage = "+ Start: not implemented by this program, handled by Twilio by default.";
 const stopMessage = "+ Stop: not implemented by this program, handled by Twilio by default.";
 // -----------------------------------------------------------------------------
-console.log("+++ Start echo.");
+console.log("+ Group SMS");
 const accountSid = process.env.ACCOUNT_SID;
 const authToken = process.env.AUTH_TOKEN;
 const syncServiceSid = process.env.SYNC_SERVICE_SID;
@@ -208,27 +208,32 @@ class BroadcastTheMessage extends Command {
     client.sync.services(syncServiceSid).syncMaps(this.toNumber).syncMapItems(this.fromNumber)
     .fetch()
     .then((syncMapItems) => {
-
-    counter = 0;
+        
+    let senderName = syncMapItems.data.name;
+    console.log("+ Sender name: " + senderName);
+    let counter = 0;
     let sendList = [];
+    
     client.sync.services(syncServiceSid).syncMaps(this.toNumber).syncMapItems.list()
     .then(
         syncMapItems => {
-            console.log("++ Load syncMapItems.");
             syncMapItems.forEach((syncMapItem) => {
                 console.log("+ Key: " + syncMapItem.key 
                 + ", name: " + syncMapItem.data.name
                 + ", authorizedBy: " + syncMapItem.data.authorizedBy
             );
-            sendList[counter] = JSON.stringify({"binding_type": "sms", "address": syncMapItem.key});
-            counter += 1;
+            if (this.fromNumber !== syncMapItem.key) {
+                // Don't send to the sender.
+                sendList[counter] = JSON.stringify({"binding_type": "sms", "address": syncMapItem.key});
+                counter += 1;
+            }
         });
-        console.log("+ counter = " + counter + ", sendList: " + sendList);
+        let theMessage = "From: " + senderName + ", " + this.body;
+        console.log("+ The message |" + theMessage + "| counter = " + counter + " sendList: " + sendList);
         client.notify.services(notifyServiceSid).notifications.create({
-            body: this.body,
+            body: theMessage,
             toBinding: sendList
         }).then((response) => {
-            console.log("+ Notify response: " + response);
             console.log("+ Notify response.sid: " + response.sid);
             callback(null, broadcastSuccessMessage);
         }).catch(err => {
