@@ -7,12 +7,22 @@ const syncMapName = process.env.SYNC_MAP_NAME;
 //
 console.log("++ Retrieve Sync Service:Map: " + syncServiceSid + ":" + syncMapName);
 //
-client.sync.services(syncServiceSid).syncMaps(syncMapName).syncMapItems
-    .each(
+let returnMessage = '';
+client.sync.services(syncServiceSid).syncMaps(syncMapName).syncMapItems.list()
+    .then(
         syncMapItems => {
-        console.log("+ Key: " + syncMapItems.key 
-        + ", name: " + syncMapItems.data.name
-        + ", authorizedBy: " + syncMapItems.data.authorizedBy
-        );
+            console.log("++ Load syncMapItems.");
+            syncMapItems.forEach((syncMapItem) => {
+                console.log("+ Key: " + syncMapItem.key 
+                + ", name: " + syncMapItem.data.name
+                + ", authorizedBy: " + syncMapItem.data.authorizedBy
+            );
+            if (returnMessage === '') {
+                returnMessage = syncMapItem.data.name;
+            } else {
+                returnMessage += ", " + syncMapItem.data.name;
+            }
+        });
+        console.log('+ Names: ' + returnMessage);
     });
 
