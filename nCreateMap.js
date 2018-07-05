@@ -9,7 +9,7 @@ console.log("+ SYNC_SERVICE_SID :" + syncServiceSid + ":");
 const client = require('twilio')(accountSid, authToken);
 client.sync.services(syncServiceSid)
         .syncMaps
-        .create({ttl: 0, uniqueName: 'mymap'})
+        .create({ttl: 0, uniqueName: '+16508661233'})
         .then((sync_map) => {
             console.log("+ Created, Map SID: " + sync_map.sid);
         })
