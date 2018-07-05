@@ -202,7 +202,6 @@ class WhoCommand extends Command {
 
 class BroadcastTheMessage extends Command {
     run(callback) {
-    let sendList = '';
     
     // Check that the requester is in the group.
     // Need a proper error message returned to the requester.
@@ -210,6 +209,8 @@ class BroadcastTheMessage extends Command {
     .fetch()
     .then((syncMapItems) => {
 
+    counter = 0;
+    let sendList = [];
     client.sync.services(syncServiceSid).syncMaps(this.toNumber).syncMapItems.list()
     .then(
         syncMapItems => {
@@ -219,19 +220,13 @@ class BroadcastTheMessage extends Command {
                 + ", name: " + syncMapItem.data.name
                 + ", authorizedBy: " + syncMapItem.data.authorizedBy
             );
-            if (sendList === '') {
-                sendList = JSON.stringify({"binding_type": "sms", "address": syncMapItem.key});
-            } else {
-                sendList += ", " + JSON.stringify({"binding_type": "sms", "address": syncMapItem.key});
-            }
+            sendList[counter] = JSON.stringify({"binding_type": "sms", "address": syncMapItem.key});
+            counter += 1;
         });
-        console.log("+ sendList: " + sendList);
-        // notify.notifications.create({
+        console.log("+ counter = " + counter + ", sendList: " + sendList);
         client.notify.services(notifyServiceSid).notifications.create({
             body: this.body,
-            toBinding: [
-                sendList
-            ]
+            toBinding: sendList
         }).then((response) => {
             console.log("+ Notify response: " + response);
             console.log("+ Notify response.sid: " + response.sid);
@@ -240,7 +235,6 @@ class BroadcastTheMessage extends Command {
             // console.log(err);
             callback(err, broadcastFailMessage);
         });
-        callback(null, whoMessage + returnMessage);
     });
     
     }).catch(function (error) {
