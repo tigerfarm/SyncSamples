@@ -1,15 +1,22 @@
 // -----------------------------------------------------------------------------
+// To fix, to:
+//      Failed messages updated: Not Found.
+//      Don't re-authorize someone.
+//      Auto-send an SMS to the newly authorized person.
+//
 'use strict';
 const twilio = require('twilio');
 const client = twilio(process.env.ACCOUNT_SID, process.env.AUTH_TOKEN);
 const notify = client.notify.services(process.env.NOTIFY_SERVICE_SID);
 //
+const initSuccessMessage = '+ Group phone number initialized and you are subscribed.';
+const initFailMessage = '- Group phone number already initialized.';
 const helpMessage = 'Help: Text "subscribe" to join. "authorize <phone#>" to accept a new subscriber. "unsubscribe" to leave the group. "who" to receive a group list.';
-const subscribeSuccessMessage = "+ Subscribe: You are subscribed to this phone number's messages.";
+const subscribeSuccessMessage = "+ You are subscribed to this phone number's messages.";
 const subscribeFailMessage = '- Subscription process failed, try again.';
-const authorizeSuccessMessage = '+ Authorized.';
+const authorizeSuccessMessage = '+ You have authorized: ';
 const authorizeFailMessage = '- Failed to authorize.';
-const authorizeSelfFailMessage = '- Failed to authorize. Cannot authorize yourself.';
+const authorizeFailMessageNotAuthorized = '- You are not authorized to authorize.';
 const UnsubscribeMessage = '+ You have been unsubscribed from this group phone number.';
 const UnsubscribeFailMessage = '- Failed to unsubscribe.';
 const whoMessage = "+ Members: ";
@@ -17,6 +24,7 @@ const whoSuccessMessage = '';
 const whoFailMessage = '- You must be a member of the group to make this request.';
 const broadcastSuccessMessage = '+ Your message was broadcast to the group.';
 const broadcastFailMessage = '- Your message failed to send, try again.';
+const broadcastFailMessageNotAuthorized = '- You are not authorized to broadcast messages.';
 const broadcastNotAuthorizedMessage = '- You are not part of the group.';
 const startMessage = "+ Start: not implemented by this program, handled by Twilio by default.";
 const stopMessage = "+ Stop: not implemented by this program, handled by Twilio by default.";
@@ -47,6 +55,7 @@ class Command {
         }
         // console.log("+ this.fromNumber: " + this.fromNumber);
         let smsTextArray = this.body.split(' ');
+        this.word1 = smsTextArray[0].trim();
         if (smsTextArray.length === 2) {
             this.word2 = smsTextArray[1].trim();
         }
@@ -86,17 +95,41 @@ class StopCommand extends Command {
     }
 }
 
+class InitCommand extends Command {
+    run(callback) {
+        client.sync.services(syncServiceSid)
+        .syncMaps
+        .create({ttl: 0, uniqueName: this.toNumber})
+        .then((sync_map) => {
+            console.log("+ Initialized, created group SMS phone number Map: " + this.toNumber);
+            // Create a new SMS Notify binding for this user's phone number
+            let theData = {'name': this.word2, 'authorized': 'init'};
+            client.sync.services(syncServiceSid).syncMaps(this.toNumber).syncMapItems
+                .create({key: this.fromNumber, data: theData})
+                .then((sync_map_item) => {
+                    console.log("+ Subscribed: " + this.word2 + " " + this.fromNumber);
+                    callback(null, initSuccessMessage);
+                }).catch(function (error) {
+                callback(error, subscribeFailMessage);
+            });
+        })
+        .catch(function (error) {
+            callback(error, initFailMessage);
+        });
+    }
+}
+
 class SubscribeCommand extends Command {
     // Add the person into the DB.
     // Broadcast that they have joined.
     // Need error checking for this.word2, that it is valid.
     run(callback) {
         // Create a new SMS Notify binding for this user's phone number
-        let theData = {'name': this.word2, 'authorizedBy': 'new'};
+        let theData = {'name': this.word2, 'authorized': 'new'};
         client.sync.services(syncServiceSid).syncMaps(this.toNumber).syncMapItems
                 .create({key: this.fromNumber, data: theData})
                 .then((sync_map_item) => {
-                    console.log("+ Created, SID: " + sync_map_item.sid);
+                    console.log("+ Subscribed, name: " + this.word2 + " " + this.fromNumber);
                     callback(null, subscribeSuccessMessage);
                 }).catch(function (error) {
             callback(error, subscribeFailMessage);
@@ -111,25 +144,31 @@ class AuthorizeCommand extends Command {
     // Need better callback message when this.fromNumber is not found.
     //
     run(callback) {
-        if (this.fromNumber === this.word2) {
-            callback(null, authorizeSelfFailMessage);
-            return;
-        }
+        
 client.sync.services(syncServiceSid).syncMaps(this.toNumber).syncMapItems(this.fromNumber)
     .fetch()
     .then((syncMapItems) => {
 
+    let senderName = syncMapItems.data.name;
+    let authorized = syncMapItems.data.authorized;
+    console.log("+ Sender name: " + senderName + ", authorized: " + authorized);
+    if (authorized === 'new') {
+        callback(null, authorizeFailMessageNotAuthorized);
+        return;
+    }
+
 client.sync.services(syncServiceSid).syncMaps(this.toNumber).syncMapItems(this.word2)
     .fetch()
     .then((syncMapItems) => {
-        console.log("+ name: " + syncMapItems.data.name + ", authorizedBy: " + syncMapItems.data.authorizedBy);
-        let theData = {'name': syncMapItems.data.name, 'authorizedBy': this.fromNumber};
+        let personName = syncMapItems.data.name;
+        console.log("+ name: " + personName + ", authorized: " + syncMapItems.data.authorized);
+        let theData = {'name': personName, 'authorized': this.fromNumber};
         
         client.sync.services(syncServiceSid).syncMaps(this.toNumber).syncMapItems(this.word2)
             .update({key: this.word2, data: theData})
             .then((sync_map_item) => {
-                console.log("+ Updated authorizedBy, to:" + this.fromNumber);
-                callback(null, authorizeSuccessMessage);
+                console.log("+ Updated authorized, to: " + this.fromNumber);
+                callback(null, authorizeSuccessMessage + personName);
             }).catch(function (error) {
             // console.log("- AuthorizeCommand, update: " + error);
             callback(error, authorizeFailMessage);
@@ -181,7 +220,7 @@ class WhoCommand extends Command {
             syncMapItems.forEach((syncMapItem) => {
                 console.log("+ Key: " + syncMapItem.key 
                 + ", name: " + syncMapItem.data.name
-                + ", authorizedBy: " + syncMapItem.data.authorizedBy
+                + ", authorized: " + syncMapItem.data.authorized
             );
             if (returnMessage === '') {
                 returnMessage = syncMapItem.data.name;
@@ -208,9 +247,14 @@ class BroadcastTheMessage extends Command {
     client.sync.services(syncServiceSid).syncMaps(this.toNumber).syncMapItems(this.fromNumber)
     .fetch()
     .then((syncMapItems) => {
-        
+
     let senderName = syncMapItems.data.name;
-    console.log("+ Sender name: " + senderName);
+    let authorized = syncMapItems.data.authorized;
+    console.log("+ Sender name: " + senderName + ", authorized: " + authorized);
+    if (authorized === 'new') {
+        callback(null, broadcastFailMessageNotAuthorized);
+        return;
+    }
     let counter = 0;
     let sendList = [];
     
@@ -220,7 +264,7 @@ class BroadcastTheMessage extends Command {
             syncMapItems.forEach((syncMapItem) => {
                 console.log("+ Key: " + syncMapItem.key 
                 + ", name: " + syncMapItem.data.name
-                + ", authorizedBy: " + syncMapItem.data.authorizedBy
+                + ", authorized: " + syncMapItem.data.authorized
             );
             if (this.fromNumber !== syncMapItem.key) {
                 // Don't send to the sender.
@@ -255,7 +299,7 @@ class BroadcastTheMessage extends Command {
 //------------------
 // For testing:
 // https://obedient-machine-3163.twil.io/groupsms?To=+16503791233&From=16508661234&body=okay
-var event = {Body: "Hello there", From: "+12223331234", To: "+16508661233"}; // 16508661234
+var event = {Body: "subsribe ", From: "+16508668232", To: "+16508661233"}; // 16508661234
 function callback(aValue, theText) {
     console.log("++ function callback: " + theText);
 }
@@ -296,6 +340,9 @@ function callback(aValue, theText) {
         case 'stop':
             cmdInstance = new StopCommand(event);
             break;
+        case 'init':
+            cmdInstance = new InitCommand(event);
+            break;
         default:
             cmdInstance = new BroadcastTheMessage(event);   // Use Notify
     }
@@ -303,11 +350,13 @@ function callback(aValue, theText) {
         let twiml = new twilio.twiml.MessagingResponse();
         if (err) {
             // console.log(err);
-            console.log("- cmdInstance.run error: " + err.status + ":" + err.message);
-            if (err.message.indexOf("already exists")>0) {
-                message = 'You are already subscribed.';            
+            console.log("- cmdInstance.run, " + cmdInstance.word1 + " error: " + err.status + ":" + err.message);
+            if (err.status === 409 && cmdInstance.word1 === 'subscribe') {
+                message = 'You are already subscribed.';
             } else if (err.status === 404) {
                 message = 'There was a problem with your request, value not found: ' + cmdInstance.word2;
+            } else if (err.status === 409 && cmdInstance.word1 === 'init') {
+                message = initFailMessage;
             } else {
                 message = 'There was a problem with your request.';
             }
