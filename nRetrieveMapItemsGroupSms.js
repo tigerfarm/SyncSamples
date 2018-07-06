@@ -11,11 +11,11 @@ let returnMessage = '';
 client.sync.services(syncServiceSid).syncMaps(syncMapName).syncMapItems.list()
     .then(
         syncMapItems => {
-            console.log("++ Load syncMapItems.");
+            // console.log("++ Load syncMapItems.");
             syncMapItems.forEach((syncMapItem) => {
                 console.log("+ Key: " + syncMapItem.key 
                 + ", name: " + syncMapItem.data.name
-                + ", authorizedBy: " + syncMapItem.data.authorizedBy
+                + ", authorized: " + syncMapItem.data.authorized
             );
             if (returnMessage === '') {
                 returnMessage = syncMapItem.data.name;
@@ -23,6 +23,11 @@ client.sync.services(syncServiceSid).syncMaps(syncMapName).syncMapItems.list()
                 returnMessage += ", " + syncMapItem.data.name;
             }
         });
-        console.log('+ Names: ' + returnMessage);
+        if (returnMessage === '') {
+            console.log('+ None.');
+        } else {
+            console.log('+ Names: ' + returnMessage);
+        }
+        
     });
 

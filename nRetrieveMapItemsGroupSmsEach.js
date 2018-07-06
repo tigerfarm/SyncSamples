@@ -12,6 +12,6 @@ client.sync.services(syncServiceSid).syncMaps(syncMapName).syncMapItems
         syncMapItems => {
         console.log("+ Key: " + syncMapItems.key 
         + ", name: " + syncMapItems.data.name
-        + ", authorizedBy: " + syncMapItems.data.authorizedBy
+        + ", authorized: " + syncMapItems.data.authorized
         );
     });

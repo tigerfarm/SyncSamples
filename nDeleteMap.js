@@ -3,7 +3,7 @@ const accountSid = process.env.ACCOUNT_SID;
 const authToken = process.env.AUTH_TOKEN;
 const client = require('twilio')(accountSid, authToken);
 const syncServiceSid = process.env.SYNC_SERVICE_SID;
-syncMapName = 'mymap1';
+syncMapName = '+16508661233';
 console.log("++ Delete Sync Service:Map: " + syncServiceSid + ":" + syncMapName);
 client.sync.services(syncServiceSid)
         .syncMaps(syncMapName)

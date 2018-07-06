@@ -6,7 +6,7 @@ const syncServiceSid = process.env.SYNC_SERVICE_SID;
 const syncMapName = process.env.SYNC_MAP_NAME;
 const syncMapItem = '+12223331234';
 console.log("++ Create Sync Service:Map:Item: " + syncServiceSid + ":" + syncMapName + ":" + syncMapItem);
-let theData = {'name': 'myname', 'authorizedBy': 'new'};
+let theData = {'name': 'myname', 'authorized': 'new'};
 client.sync.services(syncServiceSid).syncMaps(syncMapName).syncMapItems
     .create({key: syncMapItem, data: theData})
     .then((sync_map_item) => {
