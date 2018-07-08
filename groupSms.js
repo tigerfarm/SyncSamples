@@ -1,43 +1,41 @@
 // -----------------------------------------------------------------------------
-// To fix, to:
-//      Failed messages updated: Not Found.
-//      Don't re-authorize someone.
-//      Auto-send an SMS to the newly authorized person.
+// To udpate:
+//      Auto-send an SMS to annouce a new subscriber.
+//      More testing and handling of invalid cases.
+//      Option for auto-authorize-subscriber.
 //
 'use strict';
 const twilio = require('twilio');
 const client = twilio(process.env.ACCOUNT_SID, process.env.AUTH_TOKEN);
 const notify = client.notify.services(process.env.NOTIFY_SERVICE_SID);
 //
-const initSuccessMessage = '+ Group phone number initialized and you are subscribed.';
+const initSuccessMessage = '+ Group phone number initialized and you are subscribed as the admin.';
 const initFailMessage = '- Group phone number already initialized.';
-const helpMessage = 'Help: Text "subscribe" to join. "authorize <phone#>" to accept a new subscriber. "unsubscribe" to leave the group. "who" to receive a group list.';
-const subscribeSuccessMessage = "+ You are subscribed to this phone number's messages.";
+const helpMessage = 'Help: Text "subscribe name" to join. "authorize +PhoneNumber" to accept a new subscriber. "unsubscribe" to leave the group. "who" to receive a group list.';
+const subscribeSuccessMessage = "+ You are subscribed to this Group's SMS messages.";
 const subscribeFailMessage = '- Subscription process failed, try again.';
 const authorizeSuccessMessage = '+ You have authorized: ';
 const authorizeFailMessage = '- Failed to authorize.';
 const authorizeFailMessageNotAuthorized = '- You are not authorized to authorize.';
+const authorizeFailMessageAlreadyAuthorized ='- Already authorized.';
 const UnsubscribeMessage = '+ You have been unsubscribed from this group phone number.';
 const UnsubscribeFailMessage = '- Failed to unsubscribe.';
 const whoMessage = "+ Members: ";
 const whoSuccessMessage = '';
 const whoFailMessage = '- You must be a member of the group to make this request.';
+const whoFailMessageNotAuthorized = '- You are not authorized.';
 const broadcastSuccessMessage = '+ Your message was broadcast to the group.';
 const broadcastFailMessage = '- Your message failed to send, try again.';
 const broadcastFailMessageNotAuthorized = '- You are not authorized to broadcast messages.';
 const broadcastNotAuthorizedMessage = '- You are not part of the group.';
-const startMessage = "+ Start: not implemented by this program, handled by Twilio by default.";
-const stopMessage = "+ Stop: not implemented by this program, handled by Twilio by default.";
 // -----------------------------------------------------------------------------
 console.log("+ Group SMS");
 const accountSid = process.env.ACCOUNT_SID;
 const authToken = process.env.AUTH_TOKEN;
-const syncServiceSid = process.env.SYNC_SERVICE_SID;
-const syncMap = process.env.SYNC_MAP_NAME;
 // console.log("+ ACCOUNT_SID      :" + accountSid + ":");
 // console.log("+ AUTH_TOKEN       :" + authToken + ":");
+const syncServiceSid = process.env.SYNC_SERVICE_SID;
 console.log("+ SYNC_SERVICE_SID :" + syncServiceSid + ":");
-// console.log("+ SYNC_MAP_NAME    :" + syncMap + ":");
 const notifyServiceSid = process.env.NOTIFY_SERVICE_SID;
 console.log("+ NOTIFY_SERVICE_SID  :" + notifyServiceSid + ":");
 
@@ -81,20 +79,6 @@ class HelpCommand extends Command {
     }
 }
 
-class StartCommand extends Command {
-    run(callback) {
-        // console.log("++ callback: " + startMessage);
-        callback(null, startMessage);
-    }
-}
-
-class StopCommand extends Command {
-    run(callback) {
-        // console.log("++ callback: " + stopMessage);
-        callback(null, stopMessage);
-    }
-}
-
 class InitCommand extends Command {
     run(callback) {
         client.sync.services(syncServiceSid)
@@ -103,7 +87,7 @@ class InitCommand extends Command {
         .then((sync_map) => {
             console.log("+ Initialized, created group SMS phone number Map: " + this.toNumber);
             // Create a new SMS Notify binding for this user's phone number
-            let theData = {'name': this.word2, 'authorized': 'init'};
+            let theData = {'name': this.word2, 'authorized': 'admin'};
             client.sync.services(syncServiceSid).syncMaps(this.toNumber).syncMapItems
                 .create({key: this.fromNumber, data: theData})
                 .then((sync_map_item) => {
@@ -161,9 +145,14 @@ client.sync.services(syncServiceSid).syncMaps(this.toNumber).syncMapItems(this.w
     .fetch()
     .then((syncMapItems) => {
         let personName = syncMapItems.data.name;
+        let authorized = syncMapItems.data.authorized;
         console.log("+ name: " + personName + ", authorized: " + syncMapItems.data.authorized);
+        if (authorized !== 'new') {
+            callback(null, authorizeFailMessageAlreadyAuthorized);
+            return;
+        }
+
         let theData = {'name': personName, 'authorized': this.fromNumber};
-        
         client.sync.services(syncServiceSid).syncMaps(this.toNumber).syncMapItems(this.word2)
             .update({key: this.word2, data: theData})
             .then((sync_map_item) => {
@@ -212,6 +201,14 @@ class WhoCommand extends Command {
     client.sync.services(syncServiceSid).syncMaps(this.toNumber).syncMapItems(this.fromNumber)
     .fetch()
     .then((syncMapItems) => {
+
+    let senderName = syncMapItems.data.name;
+    let authorized = syncMapItems.data.authorized;
+    console.log("+ Sender name: " + senderName + ", authorized: " + authorized);
+    if (authorized === 'new') {
+        callback(null, whoFailMessageNotAuthorized);
+        return;
+    }
 
     client.sync.services(syncServiceSid).syncMaps(this.toNumber).syncMapItems.list()
     .then(
@@ -266,7 +263,7 @@ class BroadcastTheMessage extends Command {
                 + ", name: " + syncMapItem.data.name
                 + ", authorized: " + syncMapItem.data.authorized
             );
-            if (this.fromNumber !== syncMapItem.key) {
+            if (this.fromNumber !== syncMapItem.key && syncMapItem.data.authorized !== "new") {
                 // Don't send to the sender.
                 sendList[counter] = JSON.stringify({"binding_type": "sms", "address": syncMapItem.key});
                 counter += 1;
@@ -298,8 +295,12 @@ class BroadcastTheMessage extends Command {
 //
 //------------------
 // For testing:
-// https://obedient-machine-3163.twil.io/groupsms?To=+16503791233&From=16508661234&body=okay
-var event = {Body: "subsribe ", From: "+16508668232", To: "+16508661233"}; // 16508661234
+// https://about-time-1235.twil.io/groupsms?To=+16503791233&From=16508661234&body=okay
+var event;
+// event = {Body: "subscribe Harry", From: "+16508668888", To: "+16508661233"};
+// event = {Body: "authorize +16508667777", From: "+16508668225", To: "+16508661233"};
+event = {Body: "who", From: "+16508668888", To: "+16508661233"};
+// event = {Body: "Hello to all!", From: "+16508668232", To: "+16508661233"};
 function callback(aValue, theText) {
     console.log("++ function callback: " + theText);
 }
@@ -310,7 +311,7 @@ function callback(aValue, theText) {
     let smsTextArray = smsText.split(' ');
     let cmd = smsText.trim().split(' ')[0].toLowerCase();
     let cmd2 = '';
-    let echoSms = "+ cmd: " + cmd + ", From: " + event.From + ", To: " + event.From;
+    let echoSms = "+ cmd: " + cmd + ", From: " + event.From + ", To: " + event.To;
     if (smsTextArray.length === 2) {
         cmd2 = smsTextArray[1].trim();
         echoSms += ", second: " + cmd2;
@@ -319,26 +320,22 @@ function callback(aValue, theText) {
     let cmdInstance;
     // let cmdInstance = new BroadcastCommand(event);
     switch (cmd) {
-        case 'help':
-            cmdInstance = new HelpCommand(event);
-            break;
         case 'subscribe':
+        case 'start':
             cmdInstance = new SubscribeCommand(event);      // create
             break;
         case 'authorize':
             cmdInstance = new AuthorizeCommand(event);      // retrieve and update
             break;
         case 'unsubscribe':
+        case 'stop':
             cmdInstance = new UnsubscribeCommand(event);    // delete
             break;
         case 'who':
             cmdInstance = new WhoCommand(event);            // retrieve a list
             break;
-        case 'start':
-            cmdInstance = new StartCommand(event);
-            break;
-        case 'stop':
-            cmdInstance = new StopCommand(event);
+        case 'help':
+            cmdInstance = new HelpCommand(event);
             break;
         case 'init':
             cmdInstance = new InitCommand(event);
@@ -352,7 +349,9 @@ function callback(aValue, theText) {
             // console.log(err);
             console.log("- cmdInstance.run, " + cmdInstance.word1 + " error: " + err.status + ":" + err.message);
             if (err.status === 409 && cmdInstance.word1 === 'subscribe') {
-                message = 'You are already subscribed.';
+                message = '- You are already subscribed.';
+            } else if (err.status === 404 && cmdInstance.word1 === 'unsubscribe') {
+                message = '- You are not subscribed.';
             } else if (err.status === 404) {
                 message = 'There was a problem with your request, value not found: ' + cmdInstance.word2;
             } else if (err.status === 409 && cmdInstance.word1 === 'init') {
