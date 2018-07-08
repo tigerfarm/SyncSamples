@@ -160,11 +160,6 @@ class SubscribeCommand extends Command {
 }
 
 class AuthorizeCommand extends Command {
-    // Update the person into the DB to be authorized.
-    // 
-    // Need error checking that this.word2 is valid.
-    // Need better callback message when this.fromNumber is not found.
-    //
     run(callback) {
         
         if (this.smsTextArray.length !== 2) {
@@ -342,19 +337,20 @@ class BroadcastTheMessage extends Command {
 //
 //------------------
 // For testing:
-// https://about-time-1235.twil.io/groupsms?To=+16503791233&From=16508661234&body=okay
 var event;
 // event = {Body: "init David", From: "+16508668188", To: "+16508661233"};
-event = {Body: "subscribe David2", From: "+16508662222", To: "+16508661233"};
+// event = {Body: "subscribe David2", From: "+16508662222", To: "+16508661233"};
 // event = {Body: "subscribe", From: "+16508668888", To: "+16508661233"};
-// event = {Body: "authorize +16508667777", From: "+16508668225", To: "+16508661233"};
+// event = {Body: "authorize +16508662222", From: "+16508668225", To: "+16508661233"};
 // event = {Body: "authorize", From: "+16508668225", To: "+16508661233"};
-// event = {Body: "who", From: "+16508668232", To: "+16508661233"};
+event = {Body: "who", From: "+16508668232", To: "+16508661233"};
 // event = {Body: "who are you", From: "+16508668232", To: "+16508661233"};
 // event = {Body: "Hello to all!", From: "+16508668232", To: "+16508661233"};
 function callback(aValue, theText) {
     console.log("++ function callback: " + theText);
 }
+//------------------
+// https://about-time-1235.twil.io/groupsms?To=+16503791233&From=16508661234&body=okay
 // exports.handler = (context, event, callback) => {
 //------------------
 {
@@ -422,4 +418,3 @@ function callback(aValue, theText) {
     });
 }
 // -----------------------------------------------------------------------------
-
