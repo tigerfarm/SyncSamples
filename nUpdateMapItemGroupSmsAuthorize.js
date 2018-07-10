@@ -4,8 +4,8 @@ const authToken = process.env.AUTH_TOKEN;
 const client = require('twilio')(accountSid, authToken);
 const syncServiceSid = process.env.SYNC_SERVICE_SID;
 const syncMapName = '+16508661233';
-const syncMapItem = '+16508668188';
-const authorized = 'admin';
+const syncMapItem = '+16508668225';
+const authorized = 'new';
 console.log("++ Update Sync Service:Map:Item: " + syncServiceSid + ":" + syncMapName + ":" + syncMapItem);
 
 client.sync.services(syncServiceSid).syncMaps(syncMapName).syncMapItems(syncMapItem)
