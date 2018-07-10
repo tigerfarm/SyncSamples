@@ -1,12 +1,8 @@
 // -----------------------------------------------------------------------------
-// New subscriber needs to receive a subscribed notice.
-//
 'use strict';
-console.log("+ Group SMS");
-const syncServiceSid = process.env.SYNC_SERVICE_SID;
-console.log("+ SYNC_SERVICE_SID :" + syncServiceSid + ":");
-const notifyServiceSid = process.env.NOTIFY_SERVICE_SID;
-console.log("+ NOTIFY_SERVICE_SID  :" + notifyServiceSid + ":");
+const twilio = require('twilio');
+const client = twilio(process.env.ACCOUNT_SID, process.env.AUTH_TOKEN);
+const notify = client.notify.services(process.env.NOTIFY_SERVICE_SID);
 //
 const initSuccessMessage = '+ Group phone number initialized and you are subscribed as the admin.';
 const initFailMessage = '- Group phone number already initialized.';
@@ -29,6 +25,17 @@ const broadcastSuccessMessage = '+ Your message was broadcast to the group.';
 const broadcastFailMessage = '- Your message failed to send, try again.';
 const broadcastFailMessageNotAuthorized = '- You are not authorized to broadcast messages.';
 const broadcastNotAuthorizedMessage = '- You are not part of the group.';
+// -----------------------------------------------------------------------------
+console.log("+ Group SMS");
+const accountSid = process.env.ACCOUNT_SID;
+const authToken = process.env.AUTH_TOKEN;
+// console.log("+ ACCOUNT_SID      :" + accountSid + ":");
+// console.log("+ AUTH_TOKEN       :" + authToken + ":");
+const syncServiceSid = process.env.SYNC_SERVICE_SID;
+console.log("+ SYNC_SERVICE_SID :" + syncServiceSid + ":");
+const notifyServiceSid = process.env.NOTIFY_SERVICE_SID;
+console.log("+ NOTIFY_SERVICE_SID  :" + notifyServiceSid + ":");
+
 // -----------------------------------------------------------------------------
 class Command {
     // Create an instance with arguments from the incoming SMS
@@ -71,14 +78,14 @@ class HelpCommand extends Command {
 
 class InitCommand extends Command {
     run(callback) {
-        sync
+        client.sync.services(syncServiceSid)
         .syncMaps
         .create({ttl: 0, uniqueName: this.toNumber})
         .then((sync_map) => {
             console.log("+ Initialized, created group SMS phone number Map: " + this.toNumber);
             // Create a new SMS Notify binding for this user's phone number
             let theData = {'name': this.word2, 'authorized': 'admin'};
-            sync.syncMaps(this.toNumber).syncMapItems
+            client.sync.services(syncServiceSid).syncMaps(this.toNumber).syncMapItems
                 .create({key: this.fromNumber, data: theData})
                 .then((sync_map_item) => {
                     console.log("+ Subscribed: " + this.word2 + " " + this.fromNumber);
@@ -104,7 +111,7 @@ class SubscribeCommand extends Command {
             return;
         }
         let theData = {'name': this.word2, 'authorized': 'new'};
-        sync.syncMaps(this.toNumber).syncMapItems
+        client.sync.services(syncServiceSid).syncMaps(this.toNumber).syncMapItems
                 .create({key: this.fromNumber, data: theData})
                 .then((sync_map_item) => {
                     console.log("+ Subscribed, name: " + this.word2 + " " + this.fromNumber);
@@ -113,7 +120,7 @@ class SubscribeCommand extends Command {
         // Broadcast notice of new subscriber.
     let counter = 0;
     let sendList = [];
-    sync.syncMaps(this.toNumber).syncMapItems.list()
+    client.sync.services(syncServiceSid).syncMaps(this.toNumber).syncMapItems.list()
     .then(
         syncMapItems => {
             syncMapItems.forEach((syncMapItem) => {
@@ -133,7 +140,7 @@ class SubscribeCommand extends Command {
         }
         let theMessage = "Application notice, new unauthorized subscriber: " + this.word2;
         console.log("+ The message |" + theMessage + "| counter = " + counter + " sendList: " + sendList);
-        notify.notifications.create({
+        client.notify.services(notifyServiceSid).notifications.create({
             body: theMessage,
             toBinding: sendList
         }).then((response) => {
@@ -160,7 +167,7 @@ class AuthorizeCommand extends Command {
             return;
         }
 
-sync.syncMaps(this.toNumber).syncMapItems(this.fromNumber)
+client.sync.services(syncServiceSid).syncMaps(this.toNumber).syncMapItems(this.fromNumber)
     .fetch()
     .then((syncMapItems) => {
 
@@ -172,7 +179,7 @@ sync.syncMaps(this.toNumber).syncMapItems(this.fromNumber)
         return;
     }
 
-sync.syncMaps(this.toNumber).syncMapItems(this.word2)
+client.sync.services(syncServiceSid).syncMaps(this.toNumber).syncMapItems(this.word2)
     .fetch()
     .then((syncMapItems) => {
         let personName = syncMapItems.data.name;
@@ -184,7 +191,7 @@ sync.syncMaps(this.toNumber).syncMapItems(this.word2)
         }
 
         let theData = {'name': personName, 'authorized': this.fromNumber};
-        sync.syncMaps(this.toNumber).syncMapItems(this.word2)
+        client.sync.services(syncServiceSid).syncMaps(this.toNumber).syncMapItems(this.word2)
             .update({key: this.word2, data: theData})
             .then((sync_map_item) => {
                 console.log("+ Updated authorized, to: " + this.fromNumber);
@@ -211,7 +218,7 @@ class UnsubscribeCommand extends Command {
     // Remove the person into the DB.
     // Broadcast that they have left the group.
     run(callback) {
-        sync.syncMaps(this.toNumber).syncMapItems(this.fromNumber)
+        client.sync.services(syncServiceSid).syncMaps(this.toNumber).syncMapItems(this.fromNumber)
             .remove()
             .then((sync_map) => {
                 console.log("+ Deleted.");
@@ -229,7 +236,7 @@ class WhoCommand extends Command {
     
     // Check that the requester is in the group.
     // Need a proper error message returned to the requester.
-    sync.syncMaps(this.toNumber).syncMapItems(this.fromNumber)
+    client.sync.services(syncServiceSid).syncMaps(this.toNumber).syncMapItems(this.fromNumber)
     .fetch()
     .then((syncMapItems) => {
 
@@ -241,7 +248,7 @@ class WhoCommand extends Command {
         return;
     }
 
-    sync.syncMaps(this.toNumber).syncMapItems.list()
+    client.sync.services(syncServiceSid).syncMaps(this.toNumber).syncMapItems.list()
     .then(
         syncMapItems => {
             console.log("++ Load syncMapItems.");
@@ -276,7 +283,7 @@ class BroadcastTheMessage extends Command {
     
     // Check that the requester is in the group.
     // Need a proper error message returned to the requester.
-    sync.syncMaps(this.toNumber).syncMapItems(this.fromNumber)
+    client.sync.services(syncServiceSid).syncMaps(this.toNumber).syncMapItems(this.fromNumber)
     .fetch()
     .then((syncMapItems) => {
 
@@ -290,7 +297,7 @@ class BroadcastTheMessage extends Command {
     
     let counter = 0;
     let sendList = [];
-    sync.syncMaps(this.toNumber).syncMapItems.list()
+    client.sync.services(syncServiceSid).syncMaps(this.toNumber).syncMapItems.list()
     .then(
         syncMapItems => {
             syncMapItems.forEach((syncMapItem) => {
@@ -306,7 +313,7 @@ class BroadcastTheMessage extends Command {
         });
         let theMessage = "From: " + senderName + ", " + this.body;
         console.log("+ The message |" + theMessage + "| counter = " + counter + " sendList: " + sendList);
-        notify.notifications.create({
+        client.notify.services(notifyServiceSid).notifications.create({
             body: theMessage,
             toBinding: sendList
         }).then((response) => {
@@ -331,22 +338,17 @@ class BroadcastTheMessage extends Command {
 //------------------
 // For testing:
 var event;
-// event = {Body: "help", From: "+16508668232", To: "+16508661233"};
 // event = {Body: "init David", From: "+16508668188", To: "+16508661233"};
-// event = {Body: "subscribe David3", From: "+16508663333", To: "+16508661233"};
+// event = {Body: "subscribe David2", From: "+16508662222", To: "+16508661233"};
 // event = {Body: "subscribe", From: "+16508668888", To: "+16508661233"};
-event = {Body: "authorize +16508668225", From: "+16508668188", To: "+16508661233"};
+// event = {Body: "authorize +16508662222", From: "+16508668225", To: "+16508661233"};
 // event = {Body: "authorize", From: "+16508668225", To: "+16508661233"};
-// event = {Body: "who", From: "+16508668232", To: "+16508661233"};
+event = {Body: "who", From: "+16508668232", To: "+16508661233"};
 // event = {Body: "who are you", From: "+16508668232", To: "+16508661233"};
 // event = {Body: "Hello to all!", From: "+16508668232", To: "+16508661233"};
 function callback(aValue, theText) {
     console.log("++ function callback: " + theText);
 }
-const Twilio = require('twilio');
-const client = Twilio(process.env.ACCOUNT_SID, process.env.AUTH_TOKEN);
-const sync = client.sync.services(syncServiceSid);
-const notify = client.notify.services(notifyServiceSid);
 //------------------
 // https://about-time-1235.twil.io/groupsms?To=+16503791233&From=16508661234&body=okay
 // exports.handler = (context, event, callback) => {
@@ -394,7 +396,7 @@ const notify = client.notify.services(notifyServiceSid);
             cmdInstance = new BroadcastTheMessage(event);   // Use Notify
     }
     cmdInstance.run((err, message) => {
-        let twiml = new Twilio.twiml.MessagingResponse();
+        let twiml = new twilio.twiml.MessagingResponse();
         if (err) {
             // console.log(err);
             console.log("- cmdInstance.run, " + cmdInstance.word1 + " error: " + err.status + ":" + err.message);
