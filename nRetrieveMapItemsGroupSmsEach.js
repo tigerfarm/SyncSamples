@@ -7,11 +7,10 @@ const syncMapName = process.env.SYNC_MAP_NAME;
 //
 console.log("++ Retrieve Sync Service:Map: " + syncServiceSid + ":" + syncMapName);
 //
-client.sync.services(syncServiceSid).syncMaps(syncMapName).syncMapItems
-    .each(
+client.sync.services(syncServiceSid).syncMaps(syncMapName).syncMapItems.each(
         syncMapItems => {
         console.log("+ Key: " + syncMapItems.key 
-        + ", name: " + syncMapItems.data.name
-        + ", authorized: " + syncMapItems.data.authorized
+            + ", name: " + syncMapItems.data.name
+            + ", authorized: " + syncMapItems.data.authorized
         );
     });

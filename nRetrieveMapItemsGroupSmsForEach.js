@@ -26,7 +26,7 @@ client.sync.services(syncServiceSid).syncMaps(syncMapName).syncMapItems.list()
         if (returnMessage === '') {
             console.log('+ None.');
         } else {
-            console.log('+ Names: ' + returnMessage);
+            console.log('+ List of names: ' + returnMessage);
         }
         
     });
