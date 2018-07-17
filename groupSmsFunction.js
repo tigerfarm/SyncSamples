@@ -1,15 +1,16 @@
 // -----------------------------------------------------------------------------
-// New subscriber needs to receive a subscribed notice.
-//
 'use strict';
-console.log("+ Group SMS");
+//
 const syncServiceSid = process.env.SYNC_SERVICE_SID;
-console.log("+ SYNC_SERVICE_SID   :" + syncServiceSid + ":");
+// console.log("+ SYNC_SERVICE_SID :" + syncServiceSid + ":");
 const notifyServiceSid = process.env.NOTIFY_SERVICE_SID;
-console.log("+ NOTIFY_SERVICE_SID :" + notifyServiceSid + ":");
+// console.log("+ NOTIFY_SERVICE_SID  :" + notifyServiceSid + ":");
 const authorizedDefault = process.env.AUTHORIZED_DEFAULT || "self";   // default to "self" which does not require authorization.
-// const authorizedDefault = "new";   // default to "new" which requires authorization.
-console.log("+ AUTHORIZED_DEFAULT :" + authorizedDefault + ":");
+// console.log("+ AUTHORIZED_DEFAULT :" + authorizedDefault + ":");
+//
+const sync = Runtime.getSync({serviceName: syncServiceSid});
+const client = Twilio(process.env.ACCOUNT_SID, process.env.AUTH_TOKEN);
+const notify = client.notify.services(notifyServiceSid);
 //
 const initSuccessMessage = '+ Group phone number initialized and you are subscribed as the admin.';
 const initFailMessage = '- Group phone number already initialized.';
@@ -21,7 +22,7 @@ const authorizeSuccessMessage = '+ You have authorized: ';
 const authorizeFailMessage = '- Failed to authorize.';
 const authorizeFailMessageNotAuthorized = '- You are not authorized to authorize.';
 const authorizeFailMessageAlreadyAuthorized = '- Already authorized.';
-const authorizeFailMessageNumberRequired = '- Authorize phone number required: "!authorize phone-number".';
+const authorizeFailMessageNameRequired = '- Authorize phone number required: "!authorize phone-number".';
 const UnsubscribeMessage = '+ You have been unsubscribed from this group phone number.';
 const UnsubscribeFailMessage = '- Failed to unsubscribe.';
 const whoMessage = "+ Members: ";
@@ -49,19 +50,20 @@ class Command {
             this.toNumber = `+${this.toNumber}`;
         }
         // console.log("+ this.fromNumber: " + this.fromNumber);
-        let smsTextArray = this.body.split(' ');
+        this.smsTextArray = this.body.split(' ');
         this.word1 = this.body.trim().split(' ')[0].toLowerCase();
         this.word2 = '';
         if (this.word1 === "!") {
-            this.word1 = "!" + smsTextArray[1].trim();
-            if (smsTextArray.length === 3) {
-                this.word2 = smsTextArray[2].trim();
+            this.word1 = "!" + this.smsTextArray[1].trim().toLowerCase();
+            if (this.smsTextArray.length === 3) {
+                this.word2 = this.smsTextArray[2].trim();
             }
         } else {
-            if (smsTextArray.length === 2) {
-                this.word2 = smsTextArray[1].trim();
+            if (this.smsTextArray.length === 2) {
+                this.word2 = this.smsTextArray[1].trim();
             }
         }
+
     }
     // Get an array of arguments after the first word for a command
     get commandArguments() {
@@ -226,11 +228,11 @@ class UnsubscribeCommand extends Command {
     // Remove the person into the DB.
     run(callback) {
         sync.syncMaps(this.toNumber).syncMapItems(this.fromNumber)
-        .remove()
-        .then((sync_map) => {
-            console.log("+ Deleted.");
-            callback(null, UnsubscribeMessage);
-        }).catch(function (error) {
+            .remove()
+            .then((sync_map) => {
+                console.log("+ Deleted.");
+                callback(null, UnsubscribeMessage);
+            }).catch(function (error) {
             console.log("- " + error);
             callback(error, UnsubscribeFailMessage);
         }); 
@@ -325,44 +327,12 @@ class BroadcastTheMessage extends Command {
         });
     }
 }
-// -----------------------------------------------------------------------------
+
 // Handle incoming SMS commands
 //
-//------------------
-// For testing:
-var event;
-// event = {Body: "help", From: process.env.PHONE_NUMBER_3, To: process.env.PHONE_NUMBER_1};
-// event = {Body: "init David", From: process.env.PHONE_NUMBER_2, To: process.env.PHONE_NUMBER_1};
-// 
-// event = {Body: "subscribe Name3", From: process.env.PHONE_NUMBER_4, To: process.env.PHONE_NUMBER_1};
-// event = {Body: "subscribe David1", From: "+16508661111", To: process.env.PHONE_NUMBER_1};
+// For testing: https://obedient-machine-3163.twil.io/groupsms?To=+16503791233&From=6508661111&Body=okay
 //
-// event = {Body: "subscribe David2", From: "+16508662222", To: process.env.PHONE_NUMBER_1};
-event = {Body: "unsubscribe", From: "+16508662222", To: process.env.PHONE_NUMBER_1};
-// 
-// event = {Body: "who", From: "+16508662222", To: process.env.PHONE_NUMBER_1};
-// event = {Body: "who", From: process.env.PHONE_NUMBER_3, To: process.env.PHONE_NUMBER_1};
-// event = {Body: "who are you", From: process.env.PHONE_NUMBER_3, To: process.env.PHONE_NUMBER_1};
-// 
-// event = {Body: "authorize", From: process.env.PHONE_NUMBER_2, To: process.env.PHONE_NUMBER_1};
-// event = {Body: "authorize " + process.env.PHONE_NUMBER_4, From: process.env.PHONE_NUMBER_2, To: process.env.PHONE_NUMBER_1};
-// event = {Body: "authorize " + process.env.PHONE_NUMBER_2, From: process.env.PHONE_NUMBER_2, To: process.env.PHONE_NUMBER_1};
-//
-// event = {Body: "Hello to all!", From: process.env.PHONE_NUMBER_4, To: process.env.PHONE_NUMBER_1};
-//
-function callback(aValue, theText) {
-    console.log("++ function callback: " + theText);
-}
-const Twilio = require('twilio');
-const client = Twilio(process.env.ACCOUNT_SID, process.env.AUTH_TOKEN);
-const sync = client.sync.services(syncServiceSid);
-const notify = client.notify.services(notifyServiceSid);
-//------------------
-// For Twilio Functions:
-// https://about-time-1235.twil.io/groupsms?To=+16503791233&From=16508661234&body=okay
-// exports.handler = (context, event, callback) => {
-//------------------
-{
+exports.handler = (context, event, callback) => {
     //
     let twiml = new Twilio.twiml.MessagingResponse();
     //
@@ -373,35 +343,29 @@ const notify = client.notify.services(notifyServiceSid);
         cmd = "!" + smsTextArray[1].trim().toLowerCase();
     }
     let echoSms = "+ Text |" + smsText + "| cmd: " + cmd + ", From: " + event.From + ", To: " + event.To;
-    //
     console.log(echoSms);
     let cmdInstance;
-    // let cmdInstance = new BroadcastCommand(event);
     switch (cmd) {
-        case 'add':
-            cmdInstance = new SubscribeCommand(event);      // create
+        case '!subscribe':
+            cmdInstance = new SubscribeCommand(event);
             break;
-        case 'authorize':
-            cmdInstance = new AuthorizeCommand(event);      // retrieve and update
+        case '!authorize':
+            cmdInstance = new AuthorizeCommand(event);
             break;
-        case 'remove':
-            cmdInstance = new UnsubscribeCommand(event);    // delete
+        case '!unsubscribe':
+            cmdInstance = new UnsubscribeCommand(event);
             break;
-        case 'who':
-            if (smsTextArray.length === 1) {
-                cmdInstance = new WhoCommand(event);
-            } else {
-                cmdInstance = new BroadcastTheMessage(event);
-            }
+        case '!who':
+            cmdInstance = new WhoCommand(event);
             break;
-        case 'help':
+        case '!help':
             cmdInstance = new HelpCommand(event);
             break;
-        case 'init':
+        case '!init':
             cmdInstance = new InitCommand(event);
             break;
         default:
-            cmdInstance = new BroadcastTheMessage(event);   // Use Notify
+            cmdInstance = new BroadcastTheMessage(event);
     }
     cmdInstance.run((err, message) => {
         if (err) {
@@ -429,4 +393,3 @@ const notify = client.notify.services(notifyServiceSid);
         }
     });
 }
-// -----------------------------------------------------------------------------
