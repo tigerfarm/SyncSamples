@@ -13,6 +13,7 @@ const client = Twilio(process.env.ACCOUNT_SID, process.env.AUTH_TOKEN);
 const notify = client.notify.services(notifyServiceSid);
 //
 const initSuccessMessage = '+ Group phone number initialized and you are subscribed as the admin.';
+const initFailMessageNameRequired = '- Init name required: "!init name".';
 const initFailMessage = '- Group phone number already initialized.';
 const helpMessage = 'Help: Text "!subscribe name" to join. "!authorize +PhoneNumber" to accept a new subscriber. "!unsubscribe" to leave the group. "!who" to receive a group list.';
 const subscribeSuccessMessage = "+ You are subscribed to this Group's SMS messages.";
@@ -100,6 +101,10 @@ class HelpCommand extends Command {
 
 class InitCommand extends Command {
     run(callback) {
+        if (this.word2 === "") {
+            callback(null, initFailMessageNameRequired);
+            return;
+        }
         // The Twilio to-phone-number, the group phone number. This is the Sync Map name.
         sync.syncMaps.create({ttl: 0, uniqueName: this.toNumber})
         .then((sync_map) => {
@@ -371,13 +376,13 @@ exports.handler = (context, event, callback) => {
         if (err) {
             // console.log(err);
             console.log("- cmdInstance.run, " + cmdInstance.word1 + " error: " + err.status + ":" + err.message);
-            if (err.status === 409 && cmdInstance.word1 === 'subscribe') {
+            if (err.status === 409 && cmdInstance.word1 === '!subscribe') {
                 message = '- You are already subscribed.';
-            } else if (err.status === 404 && cmdInstance.word1 === 'unsubscribe') {
+            } else if (err.status === 404 && (cmdInstance.word1 === '!unsubscribe' || cmdInstance.word1 === '!who')) {
                 message = '- You are not subscribed.';
             } else if (err.status === 404) {
                 message = 'There was a problem with your request, value not found: ' + cmdInstance.word2;
-            } else if (err.status === 409 && cmdInstance.word1 === 'init') {
+            } else if (err.status === 409 && cmdInstance.word1 === '!init') {
                 message = initFailMessage;
             } else {
                 message = 'There was a problem with your request.';
