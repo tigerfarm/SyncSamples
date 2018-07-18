@@ -2,12 +2,10 @@
 //
 'use strict';
 //
+const authorizedDefault = "self";   // Default, "self", does not require new subscribers to be authorized.
+//
 const syncServiceSid = process.env.SYNC_SERVICE_SID;
-// console.log("+ SYNC_SERVICE_SID :" + syncServiceSid + ":");
 const notifyServiceSid = process.env.NOTIFY_SERVICE_SID;
-// console.log("+ NOTIFY_SERVICE_SID  :" + notifyServiceSid + ":");
-const authorizedDefault = process.env.AUTHORIZED_DEFAULT || "self";   // default to "self" which does not require authorization.
-// console.log("+ AUTHORIZED_DEFAULT :" + authorizedDefault + ":");
 //
 const sync = Runtime.getSync({serviceName: syncServiceSid});
 const client = Twilio(process.env.ACCOUNT_SID, process.env.AUTH_TOKEN);
@@ -205,6 +203,7 @@ class SubscribeCommand extends Command {
                 });
                 if (counter === 0) {
                     console.log("+ New subscription notice not sent because there is no one yet to receive the notice.");
+                    callback(null, subscribeSuccessMessage);
                     return;
                 }
                 let theMessage = "Application notice, new ";
@@ -216,14 +215,13 @@ class SubscribeCommand extends Command {
                 notify.notifications.create({body: theMessage, toBinding: sendList})
                 .then((response) => {
                     console.log("+ Notify response.sid: " + response.sid);
-                    // callback(null, subscribeSuccessMessage + ' Notice of your new subscription was sent to the group.');
+                    callback(null, subscribeSuccessMessage + ' Notice of your new subscription was sent to the group.');
                 }).catch(err => {
                     // console.log(err);
                     callback(err, broadcastFailMessage);
                 });
             });
             // ---------------------------------------------------------------------
-            callback(null, subscribeSuccessMessage);
         }).catch(function (error) {
             callback(error, subscribeFailMessage);
         });
@@ -386,7 +384,7 @@ exports.handler = (context, event, callback) => {
             } else if (err.status === 409 && cmdInstance.word1 === '!init') {
                 message = initFailMessage;
             } else {
-                message = 'There was a problem with your request.';
+                message = 'There was a problem with your request. Please try again.';
             }
         }
         if (message === null) {
