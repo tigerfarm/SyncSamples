@@ -1,4 +1,5 @@
-// -----------------------------------------------------------------------------
+// Group SMS function
+//
 'use strict';
 //
 const syncServiceSid = process.env.SYNC_SERVICE_SID;
@@ -378,7 +379,7 @@ exports.handler = (context, event, callback) => {
             console.log("- cmdInstance.run, " + cmdInstance.word1 + " error: " + err.status + ":" + err.message);
             if (err.status === 409 && cmdInstance.word1 === '!subscribe') {
                 message = '- You are already subscribed.';
-            } else if (err.status === 404 && (cmdInstance.word1 === '!unsubscribe' || cmdInstance.word1 === '!who')) {
+            } else if (err.status === 404 && cmdInstance.word1 === '!unsubscribe') {
                 message = '- You are not subscribed.';
             } else if (err.status === 404) {
                 message = 'There was a problem with your request, value not found: ' + cmdInstance.word2;
