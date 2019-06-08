@@ -3,18 +3,9 @@
 //  https://github.com/TwilioDevEd/sdk-starter-node/tree/master/public/sync
 
 $(function () {
+    var syncClientObject;
     var $message = $('#message');
     var $buttons = $('#board .board-row button');
-
-    //Our interface to the Sync service
-    var syncClient;
-
-    // Every browser Sync client relies on FPA tokens to authenticate and authorize it
-    // for access to your Sync data.
-    //
-    // In this quickstart, we're using our own token generator. You can generate a token
-    // in any backend language that Twilio supports, or generate a Twilio Function so
-    // Twilio can host it for you. See the docs for more details.
     //
     $message.html('+ Get Sync token.');
     $.getJSON('/token', function (tokenResponse) {
@@ -22,24 +13,24 @@ $(function () {
             $message.html(tokenResponse.message);
             return;
         }
-        syncClient = new Twilio.Sync.Client(tokenResponse.token, {logLevel: 'info'});
-        //
-        syncClient.on('connectionStateChanged', function (state) {
-            if (state !== 'connected') {
-                $message.html('Sync is not live (websocket connection <span style="color: red">' + state + '</span>)…');
-            } else {
-                // Now that we're connected, lets light up our board and play!
+        syncClientObject = new Twilio.Sync.Client(tokenResponse.token, {logLevel: 'info'});
+        syncClientObject.on('connectionStateChanged', function (state) {
+            if (state === 'connected') {
+                // Set the board for playing.
                 $buttons.attr('disabled', false);
                 $message.html('Sync is live!');
+            } else {
+                $message.html('Sync is not live (websocket connection <span style="color: red">' + state + '</span>)…');
+                return;
             }
         });
         //
-        $message.html('Loading board data…');
+        $message.html('+ Loading board data…');
         //
-        // Our game state is stored in a Sync document. Here, we'll attach to that document
-        // or create it, if it doesn't exist.
+        // The game state is stored in a Sync document.
+        // Attach to the document; or create it, if it doesn't exist.
         // 
-        syncClient.document('SyncGame').then(function (syncDoc) {
+        syncClientObject.document('SyncGame').then(function (syncDoc) {
             var data = syncDoc.value;
             if (data.board) {
                 updateUserInterface(data);
