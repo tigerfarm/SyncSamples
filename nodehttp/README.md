@@ -5,8 +5,8 @@ https://www.twilio.com/docs/sync/quickstart/js
 
 ## Twilio Console Configuration
 
-These are the steps to configure to use the Chat Web Application.
-No development or credit card information required to try Chat.
+These are the steps to configure to use the web application.
+No development or credit card information required to try Sync.
 
 1. Create a Sync Service:
 
