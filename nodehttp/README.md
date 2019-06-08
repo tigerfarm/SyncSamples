@@ -8,9 +8,9 @@ https://www.twilio.com/docs/sync/quickstart/js
 These are the steps to configure to use the Chat Web Application.
 No development or credit card information required to try Chat.
 
-1. Create a Chat Service:
+1. Create a Sync Service:
 
-[https://www.twilio.com/console/chat/dashboard](https://www.twilio.com/console/chat/dashboard)
+[https://www.twilio.com/console/sync/services](https://www.twilio.com/console/sync/services)
 
 2. Create an API key and secret string:
 
@@ -28,10 +28,8 @@ $ export API_KEY_SECRET xxx...xxx
 ````
 Install the required packages.
 ````
-$ npm install twilio
-$ npm install express
-
-$ node webserver.js
+$ npm install --save twilio
+$ npm install --save express
 ````
 Run the webserver program.
 ````
@@ -40,7 +38,7 @@ $ node webserver.js
 
 ## Test
 
-Use a browser to set the Sync client username:
+In a browser tab, set the Sync client username identity (me):
 
 http://localhost:8000/hello?username=me
 
@@ -50,7 +48,7 @@ http://localhost:8000/
 
 Click one of the square to change it to an X.
 
-In another browser tab, to set the Sync client username:
+In a browser tab, set another Sync client username identity (you):
 
 http://localhost:8000/hello?username=you
 
