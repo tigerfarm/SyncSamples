@@ -1,12 +1,15 @@
 // -----------------------------------------------------------------------------
-// GitHub repository:
+// Based on the GitHub repository:
 //  https://github.com/TwilioDevEd/sdk-starter-node/tree/master/public/sync
-
+//
 $(function () {
+    //
+    // -------------------------------------------------------------------------
     var syncClientObject;
     var $message = $('#message');
     var $buttons = $('#board .board-row button');
     //
+    // -------------------------------------------------------------------------
     $message.html('+ Get Sync token.');
     $.getJSON('/token', function (tokenResponse) {
         if (tokenResponse.message !== '') {
@@ -27,7 +30,7 @@ $(function () {
         //
         $message.html('+ Loading board data…');
         //
-        // The game state is stored in a Sync document.
+        // The game state is stored in a Sync document: SyncGame.
         // Attach to the document; or create it, if it doesn't exist.
         // 
         syncClientObject.document('SyncGame').then(function (syncDoc) {
@@ -35,12 +38,12 @@ $(function () {
             if (data.board) {
                 updateUserInterface(data);
             }
-            // Event handlers.
+            // Sync event handler.
             syncDoc.on('updated', function (event) {
-                console.debug("Board was updated", event.isLocal ? "locally." : "by the other guy.");
+                console.debug("Board was updated", event.isLocal ? "locally." : "by the other player.");
                 updateUserInterface(event.value);
             });
-            // Let's make our buttons control the game state in Sync…
+            // Buttons to control the game Sync state.
             $buttons.on('click', function (e) {
                 // Toggle the value: X, O, or empty
                 toggleCellValue($(e.target));
@@ -52,6 +55,9 @@ $(function () {
         });
 
     });
+
+    // -------------------------------------------------------------------------
+    // HTML Tic-Tac Board Functions
 
     //Toggle the value: X, O, or empty (&nbsp; for UI)
     function toggleCellValue($cell) {
