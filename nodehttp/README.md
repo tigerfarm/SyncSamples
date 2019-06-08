@@ -1,22 +1,45 @@
-# Sync Sample Website Application
+# Twilio Sync Sample Website Application
 
 This repository application is based on the Twilio Sync quickstart:
 https://www.twilio.com/docs/sync/quickstart/js
 
-Setup:
+## Twilio Console Configuration
+
+These are the steps to configure to use the Chat Web Application.
+No development or credit card information required to try Chat.
+
+1. Create a Chat Service:
+
+[https://www.twilio.com/console/chat/dashboard](https://www.twilio.com/console/chat/dashboard)
+
+2. Create an API key and secret string:
+
+[https://www.twilio.com/console/chat/runtime/api-keys](https://www.twilio.com/console/chat/runtime/api-keys)
+
+
+## Application Environment Setup
+
+Use your Twilio account values to set the Environment variables used in webserver.js.
 ````
 $ export ACCOUNT_SID ACxxx...xxx
 $ export SYNC_SERVICE_SID ISxxx...xxx
 $ export API_KEY SKxxx...xxx
 $ export API_KEY_SECRET xxx...xxx
 ````
-Run the Node.JS server program, install the required packages, then run the chat server or command line program.
+Install the required packages.
 ````
 $ npm install twilio
 $ npm install express
 
 $ node webserver.js
 ````
+Run the webserver program.
+````
+$ node webserver.js
+````
+
+## Test
+
 Use a browser to set the Sync client username:
 
 http://localhost:8000/hello?username=me
@@ -40,7 +63,7 @@ Click another square to change it to an X.
 Change to the other tab to see the change.
 
 --------------------------------------------------------------------------------
-## Sample programs.
+## Program Descriptions
 
 webserver.js : basic HTTP webserver that using Express.
 

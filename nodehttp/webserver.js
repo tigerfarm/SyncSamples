@@ -1,8 +1,9 @@
 // -----------------------------------------------------------------------------
-// $ npm install express --save
+// $ npm install --save express
 const express = require('express');
 var app = express();
 
+// $ npm install --save twilio
 var AccessToken = require('twilio').jwt.AccessToken;
 var SyncGrant = AccessToken.SyncGrant;
 
@@ -34,11 +35,6 @@ app.get('/token', function (request, response) {
 });
 
 // -----------------------------------------------------------------------------
-app.get('/show', function (req, res) {
-    console.log("+ GET headers: " + JSON.stringify(req.headers));
-    res.send('show get.');
-});
-
 app.get('/hello', function (req, res) {
     if (req.query.username) {
         userIdentity = req.query.username
