@@ -1,5 +1,8 @@
 # Sync Sample Website Application
 
+This repository application is based on the Twilio Sync quickstart:
+https://www.twilio.com/docs/sync/quickstart/js
+
 Setup:
 ````
 $ export ACCOUNT_SID ACxxx...xxx
