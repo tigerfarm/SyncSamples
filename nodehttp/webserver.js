@@ -32,6 +32,8 @@ app.get('/token', function (request, response) {
         identity: identity,
         token: token.toJwt()
     });
+    // Reset, which requires the next person to set their identity before getting a token.
+    userIdentity = '';
 });
 
 // -----------------------------------------------------------------------------
