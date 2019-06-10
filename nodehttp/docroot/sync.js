@@ -7,6 +7,7 @@
 //  
 // -----------------------------------------------------------------------------
 
+var thisIdentity = '';
 var syncClientObject;
 var thisSyncDoc;
 var $buttons = $('#board .board-row button');
@@ -24,8 +25,8 @@ window.onload = function () {
 };
 
 function getToken() {
-    var identity = $("#userIdentity").val();
-    if (identity === "") {
+    thisIdentity = $("#userIdentity").val();
+    if (thisIdentity === "") {
         $("#mUserIdentity").html("Required");
         logger("Required: user identity.");
         return;
@@ -36,7 +37,7 @@ function getToken() {
         logger("Required: Game name.");
         return;
     }
-    $.getJSON('/token?identity=' + identity, function (tokenResponse) {
+    $.getJSON('/token?identity=' + thisIdentity, function (tokenResponse) {
         if (tokenResponse.message !== '') {
             logger(tokenResponse.message);
             return;
@@ -69,8 +70,14 @@ function getToken() {
             //
             logger('Subscribed to updates for Sync document : ' + syncDocumentName);
             syncDoc.on('updated', function (syncEvent) {
-                // logger("Board was updated: ", event.isLocal ? "locally." : "by the other player.");
-                logger("syncDoc updated, syncEvent.isLocal: " + syncEvent.isLocal);
+                theMessage = '';
+                if (syncEvent.isLocal) {
+                    theMessage = "syncDoc updated by this player: ";
+                } else {
+                    theMessage = "syncDoc updated by another player: ";
+                }
+                // logger(theMessage + JSON.stringify(syncEvent.value) + ': ' + syncEvent.value.useridentity);
+                logger(theMessage + syncEvent.value.useridentity);
                 updateUserInterface(syncEvent.value);
             });
         });
@@ -81,28 +88,23 @@ function getToken() {
 // HTML Tic-Tac Board Functions
 
 function buttonClick() {
-    toggleCellValue($(event.target));
-    var data = readGameBoardFromUserInterface();
-    logger('thisSyncDoc: ' + thisSyncDoc.uniqueName + ' : ' + JSON.stringify(data));
-    thisSyncDoc.set(data);
-}
-
-//Toggle the value: X, O, or empty (&nbsp; for UI)
-function toggleCellValue($cell) {
-    logger('toggleCellValue()');
-    var cellValue = $cell.html();
-    if (cellValue === 'X') {
-        $cell.html('O');
-    } else if (cellValue === 'O') {
-        $cell.html('&nbsp;');
+    $square = $(event.target);
+    var squareValue = $square.html();
+    if (squareValue === 'X') {
+        $square.html('O');
+    } else if (squareValue === 'O') {
+        $square.html('&nbsp;');
     } else {
-        $cell.html('X');
+        $square.html('X');
     }
+    var data = readGameBoardFromUserInterface();
+    // logger('Button clicked, thisSyncDoc: ' + thisSyncDoc.uniqueName + ' : ' + JSON.stringify(data));
+    thisSyncDoc.set(data);
 }
 
 //Read the state of the UI and create a new document
 function readGameBoardFromUserInterface() {
-    logger('readGameBoardFromUserInterface()');
+    // logger('readGameBoardFromUserInterface()');
     var board = [
         ['', '', ''],
         ['', '', ''],
@@ -115,12 +117,13 @@ function readGameBoardFromUserInterface() {
             board[row][col] = $(selector).html().replace('&nbsp;', '');
         }
     }
-    return {board: board};
+    // Example: {"board":[["X","O","X"],["","O",""],["","",""]],"useridentity":"david"}
+    return {board: board, useridentity: thisIdentity};
 }
 
 //Update the buttons on the board to match our document
 function updateUserInterface(data) {
-    logger('updateUserInterface()');
+    // logger('updateUserInterface()');
     for (var row = 0; row < 3; row++) {
         for (var col = 0; col < 3; col++) {
             var this_cell = '[data-row="' + row + '"]' + '[data-col="' + col + '"]';
