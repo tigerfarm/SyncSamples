@@ -25,6 +25,10 @@ window.onload = function () {
 };
 
 function getToken() {
+    $("#mUserIdentity").html("");
+    $("#mTokenPassword").html("");
+    $("#mSyncDocumentName").html("");
+    //
     thisIdentity = $("#userIdentity").val();
     if (thisIdentity === "") {
         $("#mUserIdentity").html("Required");
@@ -45,6 +49,7 @@ function getToken() {
     }
     $.getJSON('/token?identity=' + thisIdentity + "&password=" + tokenPassword, function (tokenResponse) {
         if (tokenResponse.message !== '') {
+            $("#mTokenPassword").html(tokenResponse.message);
             logger(tokenResponse.message);
             return;
         }
