@@ -26,6 +26,7 @@ Following are the steps to configure and use the web application.
 Use your Twilio account values to set the Environment variables used in webserver.js program.
 ````
 $ export ACCOUNT_SID ACxxx...xxx
+$ export TOKEN_PASSWORD=mypassword
 $ export SYNC_SERVICE_SID ISxxx...xxx
 $ export API_KEY SKxxx...xxx
 $ export API_KEY_SECRET xxx...xxx
