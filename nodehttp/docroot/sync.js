@@ -31,13 +31,19 @@ function getToken() {
         logger("Required: user identity.");
         return;
     }
+    var tokenPassword = $("#tokenPassword").val();
+    if (tokenPassword === "") {
+        $("#mTokenPassword").html("Required");
+        logger("Required: user password.");
+        return;
+    }
     var syncDocumentName = $("#syncDocumentName").val();
     if (syncDocumentName === "") {
         $("#mSyncDocumentName").html("Required");
         logger("Required: Game name.");
         return;
     }
-    $.getJSON('/token?identity=' + thisIdentity, function (tokenResponse) {
+    $.getJSON('/token?identity=' + thisIdentity + "&password=" + tokenPassword, function (tokenResponse) {
         if (tokenResponse.message !== '') {
             logger(tokenResponse.message);
             return;

@@ -17,6 +17,17 @@ app.get('/token', function (request, response) {
         response.send({message: '- Identity required.'});
         return;
     }
+    var tokenPassword = '';
+    if (request.query.password) {
+        tokenPassword = request.query.password;
+        if (tokenPassword !== process.env.TOKEN_PASSWORD) {
+            response.send({message: '- User identity and Password combination, not valid.'});
+            return;
+        }
+    } else {
+        response.send({message: '- Password required.'});
+        return;
+    }
     console.log('+ userIdentity: ' + userIdentity);
     var syncGrant = new SyncGrant({
         serviceSid: process.env.SYNC_SERVICE_SID
