@@ -21,10 +21,16 @@ window.onload = function () {
 };
 
 function getToken() {
-    identity = $("#userIdentity").val();
+    var identity = $("#userIdentity").val();
     if (identity === "") {
         $("#mUserIdentity").html("Required");
         logger("Required: user identity.");
+        return;
+    }
+    var syncDocumentName = $("#syncDocumentName").val();
+    if (syncDocumentName === "") {
+        $("#mSyncDocumentName").html("Required");
+        logger("Required: Game name.");
         return;
     }
     $.getJSON('/token?identity=' + identity, function (tokenResponse) {
@@ -46,13 +52,11 @@ function getToken() {
                 return;
             }
         });
-
         // -------------------------------------------------------------------------
-        //
         // The game state is stored in a Sync document: SyncGame.
         // Attach to the document; or if it doesn't exist, create it.
         // 
-        syncClientObject.document('SyncGame').then(function (syncDoc) {
+        syncClientObject.document(syncDocumentName).then(function (syncDoc) {
             thisSyncDoc = syncDoc;
             logger('Loading board data.');
             var data = syncDoc.value;
@@ -60,9 +64,10 @@ function getToken() {
                 updateUserInterface(data);
             }
             // Sync document event handler.
-            syncDoc.on('updated', function (event) {
-                logger("Board was updated", event.isLocal ? "locally." : "by the other player.");
-                updateUserInterface(event.value);
+            syncDoc.on('updated', function (theEvent) {
+                // logger("Board was updated: ", event.isLocal ? "locally." : "by the other player.");
+                logger("syncDoc event: ", theEvent);
+                updateUserInterface(theEvent.value);
             });
         });
     });
@@ -74,7 +79,7 @@ function getToken() {
 function buttonClick() {
     toggleCellValue($(event.target));
     var data = readGameBoardFromUserInterface();
-    logger('thisSyncDoc: ' + thisSyncDoc + ' ' + JSON.stringify(data));
+    logger('thisSyncDoc: ' + thisSyncDoc.uniqueName + ' : ' + JSON.stringify(data));
     thisSyncDoc.set(data);
 }
 
