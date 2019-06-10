@@ -2,6 +2,9 @@
 // Based on the GitHub repository:
 //  https://github.com/TwilioDevEd/sdk-starter-node/tree/master/public/sync
 //
+// Source:
+//  https://media.twiliocdn.com/sdk/js/sync/releases/0.11.1/twilio-sync.js
+//  
 // -----------------------------------------------------------------------------
 
 var syncClientObject;
@@ -63,11 +66,12 @@ function getToken() {
             if (data.board) {
                 updateUserInterface(data);
             }
-            // Sync document event handler.
-            syncDoc.on('updated', function (theEvent) {
+            //
+            logger('Subscribed to updates for Sync document : ' + syncDocumentName);
+            syncDoc.on('updated', function (syncEvent) {
                 // logger("Board was updated: ", event.isLocal ? "locally." : "by the other player.");
-                logger("syncDoc event: ", theEvent);
-                updateUserInterface(theEvent.value);
+                logger("syncDoc updated, syncEvent.isLocal: " + syncEvent.isLocal);
+                updateUserInterface(syncEvent.value);
             });
         });
     });
