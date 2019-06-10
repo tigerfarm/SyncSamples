@@ -7,12 +7,10 @@ var app = express();
 var AccessToken = require('twilio').jwt.AccessToken;
 var SyncGrant = AccessToken.SyncGrant;
 
-var userIdentity = '';
-
 // -----------------------------------------------------------------------------
 app.get('/token', function (request, response) {
     // Docs: https://www.twilio.com/docs/sync/identity-and-access-tokens
-    // var userIdentity = '';
+    var userIdentity = '';
     if (request.query.identity) {
         userIdentity = request.query.identity;
     } else {
@@ -39,15 +37,6 @@ app.get('/token', function (request, response) {
     userIdentity = '';
 });
 
-// -----------------------------------------------------------------------------
-app.get('/hello', function (req, res) {
-    if (req.query.username) {
-        userIdentity = req.query.username
-        res.send('Hello ' + userIdentity + '.');
-    } else {
-        res.send('Hello there.');
-    }
-});
 // -----------------------------------------------------------------------------
 app.use(express.static('docroot'));
 app.use(function (err, req, res, next) {

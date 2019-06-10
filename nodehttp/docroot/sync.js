@@ -5,6 +5,7 @@
 // -----------------------------------------------------------------------------
 
 var syncClientObject;
+var thisSyncDoc;
 var $buttons = $('#board .board-row button');
 
 function logger(message) {
@@ -39,7 +40,6 @@ function getToken() {
         //
         syncClientObject.on('connectionStateChanged', function (state) {
             if (state === 'connected') {
-                $buttons.attr('disabled', false);   // Set the board for playing.
                 logger('Sync is connected.');
             } else {
                 logger('Sync is not connected (websocket connection <span style="color: red">' + state + '</span>)…');
@@ -53,33 +53,30 @@ function getToken() {
         // Attach to the document; or if it doesn't exist, create it.
         // 
         syncClientObject.document('SyncGame').then(function (syncDoc) {
+            thisSyncDoc = syncDoc;
             logger('Loading board data.');
             var data = syncDoc.value;
             if (data.board) {
                 updateUserInterface(data);
             }
-            // Sync event handler.
+            // Sync document event handler.
             syncDoc.on('updated', function (event) {
                 logger("Board was updated", event.isLocal ? "locally." : "by the other player.");
                 updateUserInterface(event.value);
             });
-            // Buttons to control the game Sync state.
-            $buttons.on('click', function (e) {
-                logger('buttons click');
-                // Toggle the value: X, O, or empty
-                toggleCellValue($(e.target));
-                var data = readGameBoardFromUserInterface();
-                // Send updated document to Sync.
-                // This will trigger "updated" events for all players.
-                syncDoc.set(data);
-            });
-            logger('Board data loaded.');
         });
     });
 }
 
 // -------------------------------------------------------------------------
 // HTML Tic-Tac Board Functions
+
+function buttonClick() {
+    toggleCellValue($(event.target));
+    var data = readGameBoardFromUserInterface();
+    logger('thisSyncDoc: ' + thisSyncDoc + ' ' + JSON.stringify(data));
+    thisSyncDoc.set(data);
+}
 
 //Toggle the value: X, O, or empty (&nbsp; for UI)
 function toggleCellValue($cell) {
