@@ -2,17 +2,21 @@
 <html>
     <head>
         <title>Tic-Tac-Twilio</title>
-        <link href="favicon.ico" rel="shortcut icon" type="image/x-icon">
-        <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
-        <link rel="stylesheet" href="index.css">
+        <link href="custom/favicon.ico" rel="shortcut icon" type="image/x-icon">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+        <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+        <script src="https://media.twiliocdn.com/sdk/js/chat/v3.0/twilio-chat.min.js"></script>
         <script src="//media.twiliocdn.com/sdk/js/sync/v0.8/twilio-sync.min.js"></script>
-        <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
-        <script src="index.js"></script>
+        <link rel="stylesheet" href="custom/sync.css">
+        <script src="sync.js"></script>
     </head>
     <body>
-        <section>
-            <h1>Tic-Tac-Twilio using Twilio Sync</h1>
-            <div id="board">
+        <script type="text/javascript" src="custom/pageTop.js"></script>
+        <div id="chatBox">
+            <div class="panelTitle">
+                Sample Application using Twilio Sync
+            </div>
+            <div id="board" style="padding-top: 20px;">
                 <div class="board-row">
                     <button type="button" data-row="0" data-col="0" disabled>&nbsp;</button>
                     <button type="button" data-row="0" data-col="1" disabled>&nbsp;</button>
@@ -29,15 +33,34 @@
                     <button type="button" data-row="2" data-col="2" disabled>&nbsp;</button>
                 </div>
             </div>
-            <div id="message">
-                Application messages.
+            <div class="panelArea">
+                <table>
+                    <tr><td>User identity </td><td><input id="userIdentity" type="text"/>&nbsp;</td><td id="mUserIdentity"></td></tr>
+                    <tr><td>Password</td><td><input type="password" id="tokenPassword" name="tokenPassword" placeholder="Your access password"/>&nbsp;</td><td id="mPassword"></td></tr>
+                    <tr><td>Game name &nbsp;</td><td><input id="syncDocumentName" type="text"/>&nbsp;</td><td id="mSyncDocumentName">(Sync document)</tr>
+                </table>
+                <table>
+                    <tr>
+                        <td><button class="abutton" id="btn-trtoken" onclick="getToken();" style="visibility: visible;">Get token</button></td>
+                    </tr>
+                </table>
             </div>
-        </section>
-        <header>
-            <a href="https://www.twilio.com/docs/api/sync/quickstart-js" target="_blank">
-                Read the getting started guide
-                <i class="fa fa-fw fa-external-link"></i>
-            </a>
-        </header>
+        </div>
+        <div id="logBox">
+            <div class="panelTitle">
+                Log messages for developers
+            </div>
+            <div class="panelArea">
+                <textarea id="log"></textarea>
+            </div>
+            <div class="panelArea">
+                <table>
+                    <tr>
+                        <td><button class="abutton" id="clearLog" onclick="clearLog();">Clear</button></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <script type="text/javascript" src="custom/pageBottom.js"></script>
     </body>
 </html>

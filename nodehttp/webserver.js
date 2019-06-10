@@ -12,11 +12,14 @@ var userIdentity = '';
 // -----------------------------------------------------------------------------
 app.get('/token', function (request, response) {
     // Docs: https://www.twilio.com/docs/sync/identity-and-access-tokens
-    if (userIdentity === '') {
-        response.send({message: '- Indentity required.'});
+    // var userIdentity = '';
+    if (request.query.identity) {
+        userIdentity = request.query.identity;
+    } else {
+        response.send({message: '- Identity required.'});
         return;
     }
-    var identity = userIdentity;
+    console.log('+ userIdentity: ' + userIdentity);
     var syncGrant = new SyncGrant({
         serviceSid: process.env.SYNC_SERVICE_SID
     });
@@ -26,10 +29,10 @@ app.get('/token', function (request, response) {
             process.env.API_KEY_SECRET
             );
     token.addGrant(syncGrant);
-    token.identity = identity;
+    token.identity = userIdentity;
     response.send({
         message: '',
-        identity: identity,
+        identity: userIdentity,
         token: token.toJwt()
     });
     // Reset, which requires the next person to set their identity before getting a token.
