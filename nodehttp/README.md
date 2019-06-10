@@ -3,10 +3,13 @@
 This repository application is based on the Twilio Sync quickstart:
 https://www.twilio.com/docs/sync/quickstart/js
 
-## Twilio Console Configuration
+This version is updated with user inputs for the token identity and the Sync document name.
+I also enhanced the code documentation.
 
-These are the steps to configure to use the web application.
+Following are the steps to configure and use the web application.
 No development or credit card information required to try Sync.
+
+## Twilio Console Configuration
 
 1. Create a Sync Service:
 

@@ -7,6 +7,7 @@ const client = require('twilio')(accountSid, authToken);
 const syncServiceSid = process.env.SYNC_SERVICE_SID;
 const syncDocName = 'SyncGame';
 console.log("++ List documents, Sync SID: " + syncServiceSid);
+console.log('-------------');
 client.sync.services(syncServiceSid).documents
     .each(syncDocuments => {
         // console.log( "+ SID: " + syncDocItems.sid + ' ' + JSON.stringify(syncDocItems) );

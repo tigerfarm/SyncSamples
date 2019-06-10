@@ -1,8 +1,8 @@
 // -----------------------------------------------------------------------------
-// Based on the GitHub repository:
+// Based on the Twilio quickstart GitHub repository:
 //  https://github.com/TwilioDevEd/sdk-starter-node/tree/master/public/sync
 //
-// Source:
+// Twilio Sync source program:
 //  https://media.twiliocdn.com/sdk/js/sync/releases/0.11.1/twilio-sync.js
 //  
 // -----------------------------------------------------------------------------
@@ -23,6 +23,9 @@ function clearLog() {
 window.onload = function () {
     log.value = "+++ Start.";
 };
+
+// -----------------------------------------------------------------------------
+// Sync functions
 
 function getToken() {
     $("#mUserIdentity").html("");
@@ -87,8 +90,8 @@ function getToken() {
                 } else {
                     theMessage = "syncDoc updated by another player: ";
                 }
-                // logger(theMessage + JSON.stringify(syncEvent.value) + ': ' + syncEvent.value.useridentity);
                 logger(theMessage + syncEvent.value.useridentity);
+                // logger('The Sync document JSON: ' + JSON.stringify(syncEvent.value));
                 updateUserInterface(syncEvent.value);
             });
         });
@@ -109,6 +112,8 @@ function buttonClick() {
         $square.html('X');
     }
     var data = readGameBoardFromUserInterface();
+    //
+    // Update the Sync document.
     // logger('Button clicked, thisSyncDoc: ' + thisSyncDoc.uniqueName + ' : ' + JSON.stringify(data));
     thisSyncDoc.set(data);
 }
@@ -132,7 +137,7 @@ function readGameBoardFromUserInterface() {
     return {board: board, useridentity: thisIdentity};
 }
 
-//Update the buttons on the board to match our document
+//Update the squares on the board to match our document
 function updateUserInterface(data) {
     // logger('updateUserInterface()');
     for (var row = 0; row < 3; row++) {

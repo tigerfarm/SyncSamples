@@ -1,6 +1,6 @@
 document.write('<div id="bottomBar">');
 document.write('<div id="bottomContent">');
-document.write('<div style="padding-bottom: 10px;"><a href="https://github.com/tigerfarm/owlchat">GitHub project: owlchat</a></div>');
+document.write('<div style="padding-bottom: 10px;"><a href="https://github.com/tigerfarm/SyncSamples/tree/master/nodehttp">GitHub repository: SyncSamples/nodehttp</a></div>');
 document.write('<a href="https://www.twilio.com/docs/api/sync/quickstart-js" target="_blank">Sync getting started guide | </a>');
 document.write('<a href="https://twilio.learnupon.com/store">Training</a>');
 document.write(' | <a href="https://www.twilio.com/support-plans">Support</a>');
