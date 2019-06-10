@@ -1,11 +1,16 @@
 // https://www.twilio.com/docs/sync/api/documents
 // A document is a simple object with a single JSON object up to 16KB in size.
 //
+var syncDocName = process.argv[2] || "";
+if (syncDocName === "") {
+    console.log("+ A Sync document name is required.");
+    process.exit();
+}
+
 const accountSid = process.env.ACCOUNT_SID;
 const authToken = process.env.AUTH_TOKEN;
 const client = require('twilio')(accountSid, authToken);
 const syncServiceSid = process.env.SYNC_SERVICE_SID;
-const syncDocName = 'SyncGame';
 console.log("++ Retrieve Sync SID, Document name: " + syncServiceSid + ", " + syncDocName);
 client.sync.services(syncServiceSid).documents(syncDocName)
     .fetch()

@@ -7,7 +7,6 @@ This version is updated with user inputs for the token identity and the Sync doc
 I also enhanced the code documentation.
 
 Following are the steps to configure and use the web application.
-No development or credit card information required to try Sync.
 
 ## Twilio Console Configuration
 
@@ -22,7 +21,7 @@ No development or credit card information required to try Sync.
 
 ## Application Environment Setup
 
-Use your Twilio account values to set the Environment variables used in webserver.js.
+Use your Twilio account values to set the Environment variables used in webserver.js program.
 ````
 $ export ACCOUNT_SID ACxxx...xxx
 $ export SYNC_SERVICE_SID ISxxx...xxx
@@ -32,6 +31,7 @@ $ export API_KEY_SECRET xxx...xxx
 Install the required packages.
 ````
 $ npm install --save twilio
+$ npm install --save twilio-sync
 $ npm install --save express
 ````
 Run the webserver program.
@@ -41,23 +41,25 @@ $ node webserver.js
 
 ## Test
 
-In a browser tab, set the Sync client username identity (me):
-
-http://localhost:8000/hello?username=me
-
 Use a browser to call the application:
 
 http://localhost:8000/
 
-Click one of the square to change it to an X.
+Enter a user identity, password, and game name.
+Example: david, mypassword, and game1.
+Click Get token, to retrieve the token and start the game.
 
-In a browser tab, set another Sync client username identity (you):
+Click one of the square to change it to an "X".
+Click the same square to change it to "O".
+Click the same square to reset it to blank.
+Click the same square to change it to "X".
 
-http://localhost:8000/hello?username=you
-
-Use a browser to call the application:
+In another browser tab, call the application:
 
 http://localhost:8000/
+
+Enter a different user identity, password, and same game name.
+Example: stacy, mypassword, and game1.
 
 You will see the board as set in the other tab.
 Click another square to change it to an X.
@@ -69,6 +71,10 @@ Change to the other tab to see the change.
 webserver.js : basic HTTP webserver that using Express.
 
 docroot : static website with Ajax call to get a Sync token from the webserver.
+
+docroot/index.html : the game page.
+
+docroot/sync.js : the game JavaScript program.
 
 listDocuments.js : list Sync documents.
 
