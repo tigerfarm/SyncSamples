@@ -6,7 +6,7 @@ https://www.twilio.com/docs/sync/quickstart/js
 This version is updated with user inputs for the token identity and the Sync document name.
 I also enhanced the code documentation.
 
-\<img src="Tic-Tac-Twilio.jpg" width="400"/>
+<img src="Tic-Tac-Twilio.jpg" width="400"/>
 
 Following are the steps to configure and use the web application.
 
