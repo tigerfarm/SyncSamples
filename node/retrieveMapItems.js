@@ -9,8 +9,11 @@ const syncMapItem = 'counterg';
 console.log("++ Retrieve Sync Service:Map:Item: " + syncServiceSid + ":" + syncMapName + ":" + syncMapItem);
 //
 client.sync.services(syncServiceSid).syncMaps(syncMapName).syncMapItems
-    .each(
-        syncMapItems => {
-        console.log("+ Counter: " + syncMapItems.key + " = " + syncMapItems.data.counter);
-    });
+        .each(syncMapItems => {
+            if (syncMapItems.data.counter) {
+                console.log("+ Key: " + syncMapItems.key + " data.counter " + syncMapItems.data.counter);
+            } else {
+                console.log("+ Key: " + syncMapItems.key + " JSON: " + JSON.stringify(syncMapItems.data));
+            }
+        });
 
