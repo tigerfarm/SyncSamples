@@ -62,9 +62,9 @@ exports.handler = function(context, event, callback) {
 // -----------------------------------------------------------------------------
 // Update a map item.
 
-// https://about-time-2357.twil.io/sumu
-// https://about-time-2357.twil.io/sumu?itemkey=counterc
-// https://about-time-2357.twil.io/sumu?itemkey=counterf&itemdatacountervalue=15
+// https://about-time-2357.twil.io/sumi
+// https://about-time-2357.twil.io/sumi?itemkey=counterc
+// https://about-time-2357.twil.io/sumi?itemkey=counterf&itemdatacountervalue=15
 
 exports.handler = function(context, event, callback) {
     let syncMapItemKey = event.itemkey || "countera";
@@ -92,22 +92,22 @@ exports.handler = function(context, event, callback) {
 };
 
 // -----------------------------------------------------------------------------
-// Retrieve a map item.
+// Fetch a map item.
 //
 // curl -X GET https://sync.twilio.com/v1/Services/$SYNC_SERVICE_SID/Maps/amap -u $ACCOUNT_SID:$AUTH_TOKEN
 // curl -X GET https://sync.twilio.com/v1/Services/$SYNC_SERVICE_SID/Maps/amap/Items/countera -u $ACCOUNT_SID:$AUTH_TOKEN
 
+// https://about-time-2357.twil.io/sfmi?itemkey=counterf
+
 exports.handler = function (context, event, callback) {
-    let syncMapItem = event.item || "countera";
-    let syncMapName = context.SYNC_MAP_NAME;
+    let syncMapItemKey = event.itemkey || "countera";
     console.log("+ List map item" 
             + ", SYNC_SERVICE_SID: " + context.SYNC_SERVICE_SID
-            + ", SYNC_MAP_NAME: " + syncMapName
-            + ", syncMapItem: " + syncMapItem
+            + ", SYNC_MAP_NAME: " + context.SYNC_MAP_NAME
+            + ", syncMapItemKey: " + syncMapItemKey
             );
     let sync = Runtime.getSync({serviceName: context.SYNC_SERVICE_SID});
-    //
-    sync.maps(syncMapName).syncMapItems(syncMapItem).fetch()
+    sync.maps(context.SYNC_MAP_NAME).syncMapItems(syncMapItemKey).fetch()
             .then((syncMapItem) => {
                 console.log("+ syncMapItem key: " + syncMapItem.key);
                 console.log("+ syncMapItem data JSON: " + JSON.stringify(syncMapItem.data));
@@ -115,7 +115,7 @@ exports.handler = function (context, event, callback) {
                     console.log("+ data.counter " + syncMapItem.data.counter);
                 }
                 if (syncMapItem.data) {
-                    callback(null, JSON.stringify(syncMapItem.data));
+                    callback(null, context.SYNC_MAP_NAME + " = " + JSON.stringify(syncMapItem.data));
                 } else {
                     callback(null, syncMapItem);
                 }
