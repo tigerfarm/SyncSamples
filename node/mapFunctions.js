@@ -127,3 +127,27 @@ exports.handler = function (context, event, callback) {
 };
 
 // -----------------------------------------------------------------------------
+// Delete a map item.
+//
+// https://about-time-2357.twil.io/sdmi?itemkey=counterf
+
+exports.handler = function (context, event, callback) {
+    let syncMapItemKey = event.itemkey || "countera";
+    console.log("+ List map item" 
+            + ", SYNC_SERVICE_SID: " + context.SYNC_SERVICE_SID
+            + ", SYNC_MAP_NAME: " + context.SYNC_MAP_NAME
+            + ", syncMapItemKey: " + syncMapItemKey
+            );
+    let sync = Runtime.getSync({serviceName: context.SYNC_SERVICE_SID});
+    sync.maps(context.SYNC_MAP_NAME).syncMapItems(syncMapItemKey).removeMap()
+            .then((syncMapItem) => {
+                console.log("+ syncMapItem key: " + syncMapItem.key);
+                callback(null, syncMapItem);
+            })
+            .catch(function (error) {
+                console.log("- " + error);
+                callback(null, "- " + error);
+            });
+};
+
+// -----------------------------------------------------------------------------
