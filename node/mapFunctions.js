@@ -1,5 +1,15 @@
 // -----------------------------------------------------------------------------
-// Documentation link:
+// Twilio Functions using Sync Maps
+// 
+// Note, I'm using Twilio version: 3.19.2, Twilio Function Configuration page,
+//  https://www.twilio.com/console/runtime/functions/configure
+// 
+// In the Twilio Function Configuration page, I created environment varialbes for use in the following Twilio Functions.
+//  https://www.twilio.com/console/runtime/functions/configure
+//      SYNC_SERVICE_SID    My Sync service SID.
+//      SYNC_MAP_NAME       I used "amap" for the value for testing.
+// 
+// Sync documentation links:
 // 
 // Client side using the Twilio JavaScript SDK:
 //  https://www.twilio.com/docs/sync/maps
@@ -8,10 +18,6 @@
 //  
 // https://www.twilio.com/docs/runtime/client?code-sample=code-get-the-default-sync-service-instance-11&code-language=Node.js&code-sdk-version=default
 // 
-// In the Twilio Function Configuration page, I created environment varialbes for use in the following Twilio Functions.
-//  https://www.twilio.com/console/runtime/functions/configure
-//      SYNC_SERVICE_SID    My/your Sync service SID.
-//      SYNC_MAP_NAME       I used "amap" for the value. You can use anything.
 
 // -----------------------------------------------------------------------------
 // Create a map.
@@ -65,38 +71,6 @@ exports.handler = function(context, event, callback) {
 };
 
 // -----------------------------------------------------------------------------
-// Update a map item.
-
-// https://about-time-2357.twil.io/sumi
-// https://about-time-2357.twil.io/sumi?itemkey=counterc
-// https://about-time-2357.twil.io/sumi?itemkey=counterf&itemdatacountervalue=15
-
-exports.handler = function(context, event, callback) {
-    let syncMapItemKey = event.itemkey || "countera";
-    let syncMapItemDataCounterValue = parseInt(event.itemdatacountervalue) || 6;
-    console.log("+ Update item"
-        + ", SYNC_SERVICE_SID: " + context.SYNC_SERVICE_SID
-        + ", SYNC_MAP_NAME: " + context.SYNC_MAP_NAME
-        + ", Item key: " + syncMapItemKey
-        + ", Data value: " + syncMapItemDataCounterValue
-    );
-    let theData = {"counter": syncMapItemDataCounterValue};
-    let sync = Runtime.getSync({serviceName: context.SYNC_SERVICE_SID}).syncMaps(context.SYNC_MAP_NAME);
-    sync.syncMapItems(syncMapItemKey).update({
-        ttl: 0,
-        key: syncMapItemKey,
-        data: theData
-    }).then(function(response){
-        console.log("+ Updated: " + response.key);
-        callback(null,"+ Updated: " + response.key + ", Data: " + JSON.stringify(theData));
-    })
-    .catch(function (error) {
-        console.log("- " + error);
-        callback(null, "- " + error);
-    });
-};
-
-// -----------------------------------------------------------------------------
 // Retrieve a map item.
 //
 // curl -X GET https://sync.twilio.com/v1/Services/$SYNC_SERVICE_SID/Maps/amap -u $ACCOUNT_SID:$AUTH_TOKEN
@@ -130,6 +104,38 @@ exports.handler = function (context, event, callback) {
                 console.log("- " + error);
                 callback(null, "- " + error);
             });
+};
+
+// -----------------------------------------------------------------------------
+// Update a map item.
+
+// https://about-time-2357.twil.io/sumi
+// https://about-time-2357.twil.io/sumi?itemkey=counterc
+// https://about-time-2357.twil.io/sumi?itemkey=counterf&itemdatacountervalue=15
+
+exports.handler = function(context, event, callback) {
+    let syncMapItemKey = event.itemkey || "countera";
+    let syncMapItemDataCounterValue = parseInt(event.itemdatacountervalue) || 6;
+    console.log("+ Update item"
+        + ", SYNC_SERVICE_SID: " + context.SYNC_SERVICE_SID
+        + ", SYNC_MAP_NAME: " + context.SYNC_MAP_NAME
+        + ", Item key: " + syncMapItemKey
+        + ", Data value: " + syncMapItemDataCounterValue
+    );
+    let theData = {"counter": syncMapItemDataCounterValue};
+    let sync = Runtime.getSync({serviceName: context.SYNC_SERVICE_SID}).syncMaps(context.SYNC_MAP_NAME);
+    sync.syncMapItems(syncMapItemKey).update({
+        ttl: 0,
+        key: syncMapItemKey,
+        data: theData
+    }).then(function(response){
+        console.log("+ Updated: " + response.key);
+        callback(null,"+ Updated: " + response.key + ", Data: " + JSON.stringify(theData));
+    })
+    .catch(function (error) {
+        console.log("- " + error);
+        callback(null, "- " + error);
+    });
 };
 
 // -----------------------------------------------------------------------------
