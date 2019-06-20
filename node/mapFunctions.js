@@ -1,6 +1,11 @@
 // -----------------------------------------------------------------------------
 // Documentation link:
-// https://www.twilio.com/docs/sync/maps
+// 
+// Client side using the Twilio JavaScript SDK:
+//  https://www.twilio.com/docs/sync/maps
+// Servier side using the Twilio SDK:
+//  https://www.twilio.com/docs/sync/api/maps
+//  
 // https://www.twilio.com/docs/runtime/client?code-sample=code-get-the-default-sync-service-instance-11&code-language=Node.js&code-sdk-version=default
 // 
 // In the Twilio Function Configuration page, I created environment varialbes for use in the following Twilio Functions.
@@ -43,15 +48,15 @@ exports.handler = function(context, event, callback) {
         + ", Item key: " + syncMapItemKey
         + ", Data value: " + syncMapItemDataCounterValue
     );
-    let sync = Runtime.getSync({serviceName: context.SYNC_SERVICE_SID});
     let theData = {"counter": syncMapItemDataCounterValue};
-    sync.maps(context.SYNC_MAP_NAME).syncMapItems.create({
+    let sync = Runtime.getSync({serviceName: context.SYNC_SERVICE_SID}).maps(context.SYNC_MAP_NAME);
+    sync.syncMapItems.create({
         ttl: 0,
         key: syncMapItemKey,
         data: theData
     }).then(function(response){
-        console.log(response);
-        callback(null,response);
+        console.log("+ Created: " + response.key);
+        callback(null,"+ Created: " + response.key + ", Data: " + JSON.stringify(theData));
     })
     .catch(function (error) {
         console.log("- " + error);
@@ -75,15 +80,15 @@ exports.handler = function(context, event, callback) {
         + ", Item key: " + syncMapItemKey
         + ", Data value: " + syncMapItemDataCounterValue
     );
-    let sync = Runtime.getSync({serviceName: context.SYNC_SERVICE_SID});
     let theData = {"counter": syncMapItemDataCounterValue};
-    sync.syncMaps(context.SYNC_MAP_NAME).syncMapItems(syncMapItemKey).update({
+    let sync = Runtime.getSync({serviceName: context.SYNC_SERVICE_SID}).syncMaps(context.SYNC_MAP_NAME);
+    sync.syncMapItems(syncMapItemKey).update({
         ttl: 0,
         key: syncMapItemKey,
         data: theData
     }).then(function(response){
-        console.log(response);
-        callback(null,response);
+        console.log("+ Updated: " + response.key);
+        callback(null,"+ Updated: " + response.key + ", Data: " + JSON.stringify(theData));
     })
     .catch(function (error) {
         console.log("- " + error);
@@ -92,22 +97,22 @@ exports.handler = function(context, event, callback) {
 };
 
 // -----------------------------------------------------------------------------
-// Fetch a map item.
+// Retrieve a map item.
 //
 // curl -X GET https://sync.twilio.com/v1/Services/$SYNC_SERVICE_SID/Maps/amap -u $ACCOUNT_SID:$AUTH_TOKEN
 // curl -X GET https://sync.twilio.com/v1/Services/$SYNC_SERVICE_SID/Maps/amap/Items/countera -u $ACCOUNT_SID:$AUTH_TOKEN
 
-// https://about-time-2357.twil.io/sfmi?itemkey=counterf
+// https://about-time-2357.twil.io/srmi?itemkey=counterf
 
 exports.handler = function (context, event, callback) {
     let syncMapItemKey = event.itemkey || "countera";
-    console.log("+ List map item" 
+    console.log("+ Retrieve map item" 
             + ", SYNC_SERVICE_SID: " + context.SYNC_SERVICE_SID
             + ", SYNC_MAP_NAME: " + context.SYNC_MAP_NAME
             + ", syncMapItemKey: " + syncMapItemKey
             );
-    let sync = Runtime.getSync({serviceName: context.SYNC_SERVICE_SID});
-    sync.maps(context.SYNC_MAP_NAME).syncMapItems(syncMapItemKey).fetch()
+    let sync = Runtime.getSync({serviceName: context.SYNC_SERVICE_SID}).maps(context.SYNC_MAP_NAME);
+    sync.syncMapItems(syncMapItemKey).fetch()
             .then((syncMapItem) => {
                 console.log("+ syncMapItem key: " + syncMapItem.key);
                 console.log("+ syncMapItem data JSON: " + JSON.stringify(syncMapItem.data));
@@ -115,12 +120,13 @@ exports.handler = function (context, event, callback) {
                     console.log("+ data.counter " + syncMapItem.data.counter);
                 }
                 if (syncMapItem.data) {
-                    callback(null, context.SYNC_MAP_NAME + " = " + JSON.stringify(syncMapItem.data));
+                    callback(null, "Retrieved: " + syncMapItem.key + ", Data: " + JSON.stringify(syncMapItem.data));
                 } else {
-                    callback(null, syncMapItem);
+                    callback(null, "Retrieved: " + syncMapItem);
                 }
             })
             .catch(function (error) {
+                // - Error: The requested resource /Services/ISf...1/Maps/amap/Items/countera was not found
                 console.log("- " + error);
                 callback(null, "- " + error);
             });
@@ -138,11 +144,11 @@ exports.handler = function (context, event, callback) {
             + ", SYNC_MAP_NAME: " + context.SYNC_MAP_NAME
             + ", syncMapItemKey: " + syncMapItemKey
             );
-    let sync = Runtime.getSync({serviceName: context.SYNC_SERVICE_SID});
-    sync.maps(context.SYNC_MAP_NAME).syncMapItems(syncMapItemKey).removeMap()
+    let sync = Runtime.getSync({serviceName: context.SYNC_SERVICE_SID}).maps(context.SYNC_MAP_NAME);
+    sync.syncMapItems(syncMapItemKey).remove()
             .then((syncMapItem) => {
-                console.log("+ syncMapItem key: " + syncMapItem.key);
-                callback(null, syncMapItem);
+                console.log("+ Deleted syncMapItem, key: " + syncMapItemKey);
+                callback(null, "+ Deleted syncMapItem, key: " + syncMapItemKey);
             })
             .catch(function (error) {
                 console.log("- " + error);
