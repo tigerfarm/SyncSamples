@@ -4,7 +4,7 @@ const authToken = process.env.AUTH_TOKEN;
 const client = require('twilio')(accountSid, authToken);
 const syncServiceSid = process.env.SYNC_SERVICE_SID;
 //
-const syncDocumentUniqueName = process.env.SYNC_MAP_NAME;
+const syncDocumentUniqueName = "x";
 console.log("++ Retrieve Sync Service:Document: " + syncServiceSid + ":" + syncDocumentUniqueName);
 //
 client.sync.services(syncServiceSid).documents(syncDocumentUniqueName)
